@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.scss";
+import "./globals.css";
 import { APP_NAME } from "./lib/globals";
+import { ThemeProvider, BaseStyles } from "@primer/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen`}>{children}</body>
+      <ThemeProvider>
+        <BaseStyles>
+          <body className={`${inter.className} min-h-screen`}>{children}</body>
+        </BaseStyles>
+      </ThemeProvider>
     </html>
   );
 }
