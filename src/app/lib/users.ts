@@ -8,3 +8,20 @@ export async function getUsers() {
     return { error };
   }
 }
+
+export async function createUser(user: any) {
+  try {
+    const createdUser = await prisma.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        notificationEnabled: false,
+        emailVerified: true,
+        isActive: true,
+      },
+    });
+    return { user: createdUser };
+  } catch (error) {
+    return { error };
+  }
+}
