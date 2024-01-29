@@ -35,6 +35,8 @@ export async function createUser(user: any) {
     });
     return { user: createdUser };
   } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }

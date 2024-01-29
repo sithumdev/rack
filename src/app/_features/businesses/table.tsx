@@ -1,5 +1,6 @@
 "use client";
 
+import { useBusinessStore } from "@/app/_store";
 import { Button, IssueLabelToken, Label, RelativeTime } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { Business, User } from "@prisma/client";
@@ -16,6 +17,8 @@ export default function BusinessesTable({
   currentUser,
 }: IBusinessesTable) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const selectedBusiness = useBusinessStore((state) => state.business);
 
   const onDialogClose = useCallback(() => setIsOpen(false), []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
@@ -41,7 +44,16 @@ export default function BusinessesTable({
             {
               header: "Name",
               field: "name",
-              rowHeader: true,
+              renderCell: (row) => {
+                return (
+                  <div className="flex items-center gap-1">
+                    {selectedBusiness?.id === row.id && (
+                      <span className="bg-green-500 w-2 h-2 rounded-full" />
+                    )}
+                    <p>{row.name}</p>
+                  </div>
+                );
+              },
             },
             {
               header: "Email Address",

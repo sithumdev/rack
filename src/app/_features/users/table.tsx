@@ -35,6 +35,11 @@ export default function UsersTable({ rows }: IUsersTable) {
           data={rows}
           columns={[
             {
+              header: "ID",
+              field: "id",
+              rowHeader: true,
+            },
+            {
               header: "Name",
               field: "name",
               rowHeader: true,

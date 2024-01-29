@@ -1,13 +1,15 @@
 "use client";
 
+import { supabaseClient } from "@/app/_lib/supabase";
+import { useBusinessStore } from "@/app/_store";
 import { createUserAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateUserSchema, { CreateUserSchemaType } from "./schema/create.schema";
-import { supabaseClient } from "@/app/_lib/supabase";
+import { User } from "@supabase/supabase-js";
 
 type ICreateUpdateUser = {
   open: boolean;
@@ -15,6 +17,22 @@ type ICreateUpdateUser = {
 };
 
 export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
+  const selectedBusiness = useBusinessStore((state) => state.business);
+
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      console.log(data.session);
+
+      if (data && data.session && data.session.user) {
+        setCurrentUser(data.session.user);
+      }
+    })();
+  }, []);
+
   const returnFocusRef = useRef(null);
 
   const {
@@ -40,6 +58,8 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
         await createUserAction({
           email,
           name,
+          assignedBy: currentUser?.email,
+          businessId: selectedBusiness?.id,
         });
         reset();
         onClose();
