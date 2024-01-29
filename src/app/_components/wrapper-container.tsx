@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionList, NavList } from "@primer/react";
+import { NavList } from "@primer/react";
 import { supabaseClient } from "../lib/supabase";
 
 export default function WrapperContainer({

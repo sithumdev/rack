@@ -18,11 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ThemeProvider>
-        <BaseStyles>
-          <body className={`${inter.className} min-h-screen`}>{children}</body>
-        </BaseStyles>
-      </ThemeProvider>
+      <body className={`${inter.className} min-h-screen`}>
+        <ThemeProvider>
+          <BaseStyles>{children}</BaseStyles>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

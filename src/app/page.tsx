@@ -1,5 +1,5 @@
-import UsersTable from "./components/table";
-import WrapperContainer from "./components/wrapper-container";
+import { UsersTable } from "@/app/_features/users";
+import WrapperContainer from "./_components/wrapper-container";
 import { getUsers } from "./lib/users";
 
 export default async function Home() {
