@@ -1,20 +1,28 @@
 "use client";
 
-import { createUserAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import CreateUserSchema, { CreateUserSchemaType } from "./schema/create.schema";
+import CreateBusinessSchema, {
+  CreateBusinessSchemaType,
+} from "./schema/create.schema";
+import { createBusinessAction } from "@/app/actions";
 import { supabaseClient } from "@/app/_lib/supabase";
+import { User } from "@prisma/client";
 
-type ICreateUpdateUser = {
+type ICreateUpdateBusiness = {
   open: boolean;
   onClose: () => void;
+  currentUser: User;
 };
 
-export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
+export default function CreateUpdateBusiness({
+  open,
+  onClose,
+  currentUser,
+}: ICreateUpdateBusiness) {
   const returnFocusRef = useRef(null);
 
   const {
@@ -22,37 +30,18 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<CreateUserSchemaType>({
-    resolver: zodResolver(CreateUserSchema),
+  } = useForm<CreateBusinessSchemaType>({
+    resolver: zodResolver(CreateBusinessSchema),
   });
 
-  const onSubmit: SubmitHandler<CreateUserSchemaType> = async (data) => {
-    const { email, password, phone, name } = data;
-
-    try {
-      const { data: createdUser, error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        phone: phone,
-      });
-
-      if (createdUser.user) {
-        await createUserAction({
-          email,
-          name,
-        });
-        reset();
-        onClose();
-      }
-
-      if (error) {
-        console.log(error);
-
-        throw error;
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const onSubmit: SubmitHandler<CreateBusinessSchemaType> = async (data) => {
+    await createBusinessAction({
+      ...data,
+      createdBy: currentUser.id,
+      updatedBy: currentUser.id,
+    });
+    reset();
+    onClose();
   };
 
   return (
@@ -63,7 +52,7 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
       aria-labelledby="header"
     >
       <div data-testid="inner">
-        <Dialog.Header id="header">Create User</Dialog.Header>
+        <Dialog.Header id="header">Create Business</Dialog.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3 p-3">
             <FormControl id={"name"}>
@@ -103,46 +92,47 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
                 type="tel"
                 className="w-full"
                 placeholder="Phone"
-                {...register("phone")}
-                validationStatus={errors.phone && "error"}
+                {...register("mobile")}
+                validationStatus={errors.mobile && "error"}
               />
-              {errors.phone && (
+              {errors.mobile && (
                 <FormControl.Validation variant="error">
                   Phone number is required
                 </FormControl.Validation>
               )}
             </FormControl>
-            <FormControl id={"password"}>
-              <FormControl.Label>Password</FormControl.Label>
+
+            <FormControl id={"address"}>
+              <FormControl.Label>Address</FormControl.Label>
               <TextInput
-                type="password"
+                type="text"
                 className="w-full"
-                placeholder="Password"
-                autoComplete="new-password"
-                {...register("password")}
-                validationStatus={errors.password && "error"}
+                placeholder="Address"
+                {...register("address")}
+                validationStatus={errors.address && "error"}
               />
-              {errors.password && (
-                <FormControl.Validation variant="error">
-                  Password is required
-                </FormControl.Validation>
-              )}
             </FormControl>
-            <FormControl id={"confirm-password"}>
-              <FormControl.Label>Re-enter Password</FormControl.Label>
+
+            <FormControl id={"website"}>
+              <FormControl.Label>Website</FormControl.Label>
               <TextInput
-                type="password"
+                type="text"
                 className="w-full"
-                placeholder="Re-enter password"
-                autoComplete="new-password"
-                {...register("confirmPassword")}
-                validationStatus={errors.confirmPassword && "error"}
+                placeholder="Website"
+                {...register("website")}
+                validationStatus={errors.website && "error"}
               />
-              {errors.confirmPassword && (
-                <FormControl.Validation variant="error">
-                  {errors.confirmPassword.message}
-                </FormControl.Validation>
-              )}
+            </FormControl>
+
+            <FormControl id={"description"}>
+              <FormControl.Label>Description</FormControl.Label>
+              <TextInput
+                type="text"
+                className="w-full"
+                placeholder="Description"
+                {...register("description")}
+                validationStatus={errors.description && "error"}
+              />
             </FormControl>
           </div>
           <Table.Divider />

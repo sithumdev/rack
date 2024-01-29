@@ -9,6 +9,19 @@ export async function getUsers() {
   }
 }
 
+export async function getUserByEmail(email: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    return { user };
+  } catch (error) {
+    return { error };
+  }
+}
+
 export async function createUser(user: any) {
   try {
     const createdUser = await prisma.user.create({

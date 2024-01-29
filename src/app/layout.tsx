@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { APP_NAME } from "./lib/globals";
+import { APP_NAME } from "./_lib/globals";
 import { ThemeProvider, BaseStyles } from "@primer/react";
+import { Wrapper } from "./_components";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen`}>
         <ThemeProvider>
-          <BaseStyles>{children}</BaseStyles>
+          <BaseStyles>
+            <Wrapper>{children}</Wrapper>
+          </BaseStyles>
         </ThemeProvider>
       </body>
     </html>
