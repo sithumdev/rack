@@ -41,6 +41,8 @@ model User {
   supplierAudits           SupplierAuditHistory[]
   assignedBusinesses       UserBusiness[]                @relation("AssignBusinesses")
   userBusiness             UserBusiness[]                @relation("Employments")
+  createdPurchases                Purchase[]                     @relation("PurchaseCreatedBy")
+  updatedPurchases                Purchase[]                     @relation("PurchaseUpdatedBy")
   userPreferences          UserPreferences?
 }
 
@@ -194,6 +196,7 @@ model ProductBrandInventory {
   brand       Brand     @relation(fields: [brandId], references: [id])
   inventory   Inventory @relation(fields: [inventoryId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
+  purchases   Purchase[]
 }
 
 model MobileInventory {
@@ -233,6 +236,22 @@ model UserPreferences {
   selectedBusiness   Business?   @relation(fields: [selectedBusinessId], references: [id])
   user               User        @relation(fields: [userId], references: [id])
 }
+
+
+model Purchase {
+  id                      Int                           @id @default(autoincrement())
+  productBrandInventoryId Int
+  quantity                Int
+  productBrandInventory   ProductBrandInventory         @relation(fields: [productBrandInventoryId], references: [id])
+  createdAt               DateTime                      @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime                      @updatedAt
+  createdById                   Int
+  updatedById                   Int
+  createdBy                     User                    @relation("PurchaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy                     User                    @relation("PurchaseUpdatedBy", fields: [updatedById], references: [id])
+}
+
+// Audits
 
 model BusinessAudit {
   id                     Int                    @id @default(autoincrement())

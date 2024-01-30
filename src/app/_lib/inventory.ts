@@ -33,9 +33,15 @@ export async function getInventory(): Promise<{
 
 export async function createInventory(inventory: any) {
   try {
+    const foundProduct = await prisma.product.findUniqueOrThrow({
+      where: {
+        id: inventory.productId,
+      },
+    });
+
     const createdInventory = await prisma.inventory.create({
       data: {
-        mrp: inventory.mrp,
+        mrp: foundProduct.price,
         sellingPrice: inventory.sellingPrice,
         sku: inventory.sku,
         available: inventory.available,

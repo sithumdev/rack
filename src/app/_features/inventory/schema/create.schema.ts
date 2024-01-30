@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 const CreateInventorySchema = z.object({
-  mrp: z.string().min(1),
   sellingPrice: z.string().min(1),
   sku: z.string().min(1),
   available: z.string().min(1),

@@ -54,7 +54,6 @@ export default function CreateUpdateInventory({
       ...data,
       productId: Number(data.productId),
       brandId: Number(data.brandId),
-      mrp: Number(data.mrp),
       sellingPrice: Number(data.sellingPrice),
       available: Number(data.available),
       sold: Number(data.sold),
@@ -130,22 +129,6 @@ export default function CreateUpdateInventory({
               </FormControl>
             </div>
             <div className="flex flex-col gap-3 p-3">
-              <FormControl id={"mrp"}>
-                <FormControl.Label>Max Retail Price</FormControl.Label>
-                <TextInput
-                  className="w-full"
-                  placeholder="Max Retail Price"
-                  type="number"
-                  {...register("mrp")}
-                  validationStatus={errors.mrp && "error"}
-                />
-                {errors.mrp && (
-                  <FormControl.Validation variant="error">
-                    Max Retail Price is required
-                  </FormControl.Validation>
-                )}
-              </FormControl>
-
               <FormControl id={"sellingPrice"}>
                 <FormControl.Label>Selling Price</FormControl.Label>
                 <TextInput

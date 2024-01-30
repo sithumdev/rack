@@ -49,6 +49,11 @@ export default function InventoryTable({
               rowHeader: true,
             },
             {
+              header: "MRP",
+              field: "mrp",
+              rowHeader: true,
+            },
+            {
               header: "SKU",
               field: "sku",
               rowHeader: true,

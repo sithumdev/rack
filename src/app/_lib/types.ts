@@ -1,5 +1,3 @@
-import { Inventory, Product } from "@prisma/client";
-
 export type InventoryType = {
   id: number;
   name: string;
