@@ -1,17 +1,23 @@
 "use client";
 
-import { Button, RelativeTime } from "@primer/react";
+import { InventoryType, ReleaseType } from "@/app/_lib/types";
+import { Button, Label, RelativeTime } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
-import { Brand, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { useCallback, useState } from "react";
-import CreateUpdateBrand from "./create-update";
+import CreateUpdatePurchase from "./create-update";
 
-type IBrandsTable = {
-  rows: Brand[];
+type IReleasesTable = {
+  rows: ReleaseType[];
   currentUser: User;
+  inventories: InventoryType[];
 };
 
-export default function BrandsTable({ rows, currentUser }: IBrandsTable) {
+export default function PurchasesTable({
+  rows,
+  currentUser,
+  inventories,
+}: IReleasesTable) {
   const [isOpen, setIsOpen] = useState(false);
 
   const onDialogClose = useCallback(() => setIsOpen(false), []);
@@ -21,14 +27,14 @@ export default function BrandsTable({ rows, currentUser }: IBrandsTable) {
     <>
       <Table.Container>
         <Table.Title as="h2" id="repositories">
-          Brands
+          Relase Invoices
         </Table.Title>
         <Table.Actions>
-          <Button onClick={onDialogOpen}>Create Brand</Button>
+          <Button onClick={onDialogOpen}>Create Relase</Button>
         </Table.Actions>
         <Table.Divider />
         <Table.Subtitle as="p" id="repositories-subtitle">
-          Brands managed by the admin
+          Release invoices managed by the admin
         </Table.Subtitle>
         <DataTable
           aria-labelledby="repositories"
@@ -36,13 +42,34 @@ export default function BrandsTable({ rows, currentUser }: IBrandsTable) {
           data={rows}
           columns={[
             {
-              header: "Name",
+              header: "Inventory",
               field: "name",
+              renderCell: (row) => {
+                return (
+                  <Label>
+                    {row.name} - {row.mrp}
+                  </Label>
+                );
+              },
+            },
+            {
+              header: "Quantity",
+              field: "quantity",
               rowHeader: true,
             },
             {
-              header: "Description",
-              field: "description",
+              header: "Sales Rep",
+              field: "whom",
+              rowHeader: true,
+            },
+            {
+              header: "Created By",
+              field: "createdBy",
+              rowHeader: true,
+            },
+            {
+              header: "Updated By",
+              field: "updatedBy",
               rowHeader: true,
             },
             {
@@ -55,10 +82,11 @@ export default function BrandsTable({ rows, currentUser }: IBrandsTable) {
           ]}
         />
       </Table.Container>
-      <CreateUpdateBrand
+      <CreateUpdatePurchase
         open={isOpen}
         onClose={onDialogClose}
         currentUser={currentUser}
+        inventories={inventories}
       />
     </>
   );

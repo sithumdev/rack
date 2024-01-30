@@ -1,11 +1,10 @@
+import { BaseStyles, ThemeProvider } from "@primer/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { APP_NAME } from "./_lib/globals";
-import { ThemeProvider, BaseStyles } from "@primer/react";
 import { Wrapper } from "./_components";
-import { getBusinesses } from "./_lib/business";
+import { APP_NAME } from "./_lib/globals";
 import { supabaseClientServer } from "./_lib/supabase-server";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,8 +18,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { businesses } = await getBusinesses();
-
   const { data } = await supabaseClientServer.auth.getUser();
 
   return (
@@ -28,11 +25,7 @@ export default async function RootLayout({
       <body className={`${inter.className} min-h-screen`}>
         <ThemeProvider>
           <BaseStyles>
-            {businesses && (
-              <Wrapper businesses={businesses} currentUser={data.user}>
-                {children}
-              </Wrapper>
-            )}
+            <Wrapper currentUser={data.user}>{children}</Wrapper>
           </BaseStyles>
         </ThemeProvider>
       </body>

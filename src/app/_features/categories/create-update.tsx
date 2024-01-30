@@ -1,6 +1,5 @@
 "use client";
 
-import { useBusinessStore } from "@/app/_store";
 import { createCategoryAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, TextInput } from "@primer/react";
@@ -23,8 +22,6 @@ export default function CreateUpdateCategory({
   onClose,
   currentUser,
 }: ICreateCategory) {
-  const selectedBusiness = useBusinessStore((state) => state.business);
-
   const returnFocusRef = useRef(null);
 
   const {
@@ -41,7 +38,6 @@ export default function CreateUpdateCategory({
       ...data,
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
-      businessId: selectedBusiness?.id,
     });
     reset();
     onClose();

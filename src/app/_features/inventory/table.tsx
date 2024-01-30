@@ -1,29 +1,49 @@
 "use client";
 
 import { InventoryType } from "@/app/_lib/types";
-import { Button, RelativeTime } from "@primer/react";
+import { Button, FormControl, RelativeTime, TextInput } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
-import { Brand, Product, User } from "@prisma/client";
-import { useCallback, useState } from "react";
+import { Product, User } from "@prisma/client";
+import { useCallback, useEffect, useState } from "react";
 import CreateUpdateInventory from "./create-update";
 
 type IInventoryTable = {
-  rows: InventoryType[];
   currentUser: User;
   products: Product[];
-  brands: Brand[];
 };
 
 export default function InventoryTable({
-  rows,
   currentUser,
   products,
-  brands,
 }: IInventoryTable) {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+
+  const [inventories, setInventories] = useState<InventoryType[]>([]);
 
   const onDialogClose = useCallback(() => setIsOpen(false), []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
+
+  useEffect(() => {
+    (async () => {
+      const formData = new FormData();
+
+      formData.append("query", query);
+
+      const response = await fetch("/api/inventory", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        if (data && Object.hasOwn(data, "inventory")) {
+          setInventories(data.inventory);
+        }
+      }
+    })();
+  }, [query]);
 
   return (
     <>
@@ -38,10 +58,20 @@ export default function InventoryTable({
         <Table.Subtitle as="p" id="repositories-subtitle">
           Inventory managed by the admin
         </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
         <DataTable
           aria-labelledby="repositories"
           aria-describedby="repositories-subtitle"
-          data={rows}
+          data={inventories}
           columns={[
             {
               header: "Name",
@@ -82,13 +112,16 @@ export default function InventoryTable({
             },
           ]}
         />
+        <Table.Pagination
+          totalCount={inventories.length}
+          aria-label="pagination"
+        />
       </Table.Container>
       <CreateUpdateInventory
         open={isOpen}
         onClose={onDialogClose}
         currentUser={currentUser}
         products={products}
-        brands={brands}
       />
     </>
   );

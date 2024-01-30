@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -9,424 +9,142 @@ datasource db {
 }
 
 model User {
-  id                       Int                           @id @default(autoincrement())
-  name                     String                        @db.VarChar(255)
-  email                    String                        @unique @db.VarChar(255)
-  avatar                   String?                       @db.VarChar(255)
-  isActive                 Boolean                       @default(true)
-  emailVerified            Boolean                       @default(false)
-  createdAt                DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt                DateTime                      @updatedAt
-  notificationEnabled      Boolean                       @default(false)
-  notificationToken        String?
-  createdBrands            Brand[]                       @relation("BrandsCreatedBy")
-  updatedBrands            Brand[]                       @relation("BrandsUpdatedBy")
-  brandAudits              BrandAuditHistory[]
-  createdBusinesses        Business[]                    @relation("BusinessCreatedBy")
-  updatedBusinesses        Business[]                    @relation("BusinessUpdatedBy")
-  businessAudits           BusinessAuditHistory[]
-  createdCategories        Category[]                    @relation("CategoriesCreatedBy")
-  updatedCategories        Category[]                    @relation("CategoriesUpdatedBy")
-  categoryAudits           CategoryAuditHistory[]
-  employeeAudits           EmployeeAuditHistory[]
-  createdInventories       Inventory[]                   @relation("InventoriesCreatedBy")
-  updatedInventories       Inventory[]                   @relation("InventoriesUpdatedBy")
-  inventoryAudits          InventoryAuditHistory[]
-  createdMobileInventories MobileInventory[]             @relation("MobileInventoriesCreatedBy")
-  updatedMobileInventories MobileInventory[]             @relation("MobileInventoriesUpdatedBy")
-  mobileInventoryAudits    MobileInventoryAuditHistory[]
-  createdProducts          Product[]                     @relation("ProductsCreatedBy")
-  updatedProducts          Product[]                     @relation("ProductsUpdatedBy")
-  productAudits            ProductAuditHistory[]
-  supplierAudits           SupplierAuditHistory[]
-  assignedBusinesses       UserBusiness[]                @relation("AssignBusinesses")
-  userBusiness             UserBusiness[]                @relation("Employments")
-  createdPurchases                Purchase[]                     @relation("PurchaseCreatedBy")
-  updatedPurchases                Purchase[]                     @relation("PurchaseUpdatedBy")
-  createdReleases                Release[]                     @relation("ReleaseCreatedBy")
-  updatedReleases                Release[]                     @relation("ReleaseUpdatedBy")
-  userPreferences          UserPreferences?
-}
-
-model Permission {
-  id                      Int                       @id @default(autoincrement())
-  name                    String                    @unique
-  level                   PERMISSION_LEVEL
-  description             String?
-  createdAt               DateTime                  @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime                  @updatedAt
-  userBusinessPermissions UserBusinessPermissions[]
-}
-
-model Business {
-  id                       Int               @id @default(autoincrement())
-  description              String?           @db.VarChar(255)
-  email                    String?           @db.VarChar(255)
-  avatar                   String?           @db.VarChar(255)
-  isActive                 Boolean           @default(true)
-  emailVerified            Boolean           @default(false)
-  address                  String?           @db.VarChar(255)
-  mobile                   String?           @db.VarChar(11)
-  fax                      String?           @db.VarChar(11)
-  website                  String?           @db.VarChar(50)
-  longitude                String?           @db.VarChar(255)
-  latitude                 String?           @db.VarChar(255)
-  createdById              Int
-  createdAt                DateTime          @default(now()) @db.Timestamp(6)
-  updatedById              Int
-  updatedAt                DateTime          @updatedAt
-  name                     String            @db.VarChar(255)
-  brands                   Brand[]
-  createdBy                User              @relation("BusinessCreatedBy", fields: [createdById], references: [id])
-  updatedBy                User              @relation("BusinessUpdatedBy", fields: [updatedById], references: [id])
-  categories               Category[]
-  inventories              Inventory?
-  products                 Product[]
-  userBusiness             UserBusiness[]
-  userPreferenceBusinesses UserPreferences[]
-
-  @@unique([createdById, name])
-}
-
-model UserBusiness {
-  id                      Int                       @id @default(autoincrement())
-  userId                  Int
-  businessId              Int
-  type                    USER_TYPE                 @default(EMPLOYEE)
-  assignedById            Int
-  mobileInventory         MobileInventory?
-  assignedBy              User                      @relation("AssignBusinesses", fields: [assignedById], references: [id])
-  business                Business                  @relation(fields: [businessId], references: [id])
-  user                    User                      @relation("Employments", fields: [userId], references: [id])
-  userBusinessPermissions UserBusinessPermissions[]
-
-  @@unique([userId, businessId])
-}
-
-model UserBusinessPermissions {
-  id             Int          @id @default(autoincrement())
-  userBusinessId Int
-  permissionId   Int
-  permission     Permission   @relation(fields: [permissionId], references: [id])
-  userBusiness   UserBusiness @relation(fields: [userBusinessId], references: [id])
-
-  @@unique([userBusinessId, permissionId])
-}
-
-model Brand {
-  id                            Int                           @id @default(autoincrement())
-  name                          String                        @db.VarChar(255)
-  description                   String?
-  createdAt                     DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt                     DateTime                      @updatedAt
-  createdById                   Int
-  updatedById                   Int
-  businessId                    Int
-  business                      Business                      @relation(fields: [businessId], references: [id])
-  createdBy                     User                          @relation("BrandsCreatedBy", fields: [createdById], references: [id])
-  updatedBy                     User                          @relation("BrandsUpdatedBy", fields: [updatedById], references: [id])
-  productBrandInventories       ProductBrandInventory[]
-  productBrandMobileInventories ProductBrandMobileInventory[]
-
-  @@unique([businessId, name])
+  id                   Int            @id @default(autoincrement())
+  name                 String         @db.VarChar(255)
+  email                String         @unique @db.VarChar(255)
+  avatar               String?        @db.VarChar(255)
+  isActive             Boolean        @default(true)
+  emailVerified        Boolean        @default(false)
+  createdAt            DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime       @updatedAt
+  notificationEnabled  Boolean        @default(false)
+  notificationToken    String?
+  type                 USER_TYPE
+  createdCategories    Category[]     @relation("CategoriesCreatedBy")
+  updatedCategories    Category[]     @relation("CategoriesUpdatedBy")
+  createdInventories   Inventory[]    @relation("InventoriesCreatedBy")
+  updatedInventories   Inventory[]    @relation("InventoriesUpdatedBy")
+  createdProducts      Product[]      @relation("ProductsCreatedBy")
+  updatedProducts      Product[]      @relation("ProductsUpdatedBy")
+  createdPurchases     Purchase[]     @relation("PurchaseCreatedBy")
+  updatedPurchases     Purchase[]     @relation("PurchaseUpdatedBy")
+  createdPurchaseItems PurchaseItem[] @relation("CreatedPurchaseItems")
+  updatedPurchaseItems PurchaseItem[] @relation("UpdatedPurchaseItems")
+  createdReleases      Release[]      @relation("ReleaseCreatedBy")
+  updatedReleases      Release[]      @relation("ReleaseUpdatedBy")
+  createdReleaseItems  ReleaseItem[]  @relation("CreatedReleaseItems")
+  updatedReleaseItems  ReleaseItem[]  @relation("UpdatedReleaseItems")
 }
 
 model Category {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(255)
+  name        String    @unique @db.VarChar(255)
   description String?
   createdAt   DateTime  @default(now()) @db.Timestamp(6)
   updatedAt   DateTime  @updatedAt
   createdById Int
   updatedById Int
-  businessId  Int
-  business    Business  @relation(fields: [businessId], references: [id])
   createdBy   User      @relation("CategoriesCreatedBy", fields: [createdById], references: [id])
   updatedBy   User      @relation("CategoriesUpdatedBy", fields: [updatedById], references: [id])
   products    Product[]
-
-  @@unique([businessId, name])
 }
 
 model Product {
-  id                            Int                           @id @default(autoincrement())
-  name                          String                        @db.VarChar(255)
-  description                   String?
-  createdAt                     DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt                     DateTime                      @updatedAt
-  createdById                   Int
-  updatedById                   Int
-  businessId                    Int
-  barcode                       String
-  price                         Int
-  weight                        Int
-  categoryId                    Int
-  business                      Business                      @relation(fields: [businessId], references: [id])
-  category                      Category                      @relation(fields: [categoryId], references: [id])
-  createdBy                     User                          @relation("ProductsCreatedBy", fields: [createdById], references: [id])
-  updatedBy                     User                          @relation("ProductsUpdatedBy", fields: [updatedById], references: [id])
-  productBrandInventories       ProductBrandInventory[]
-  productBrandMobileInventories ProductBrandMobileInventory[]
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(255)
+  description String?
+  createdAt   DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime    @updatedAt
+  createdById Int
+  updatedById Int
+  barcode     String      @unique
+  price       Int
+  weight      Int
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+  createdBy   User        @relation("ProductsCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User        @relation("ProductsUpdatedBy", fields: [updatedById], references: [id])
+  inventories Inventory[] @relation("ProductsToInventory")
 
-  @@unique([businessId, barcode])
+  @@unique([name, price])
 }
 
 model Inventory {
-  id                      Int                     @id @default(autoincrement())
-  mrp                     Int
-  sellingPrice            Int
-  sku                     String
-  available               Int
-  sold                    Int
-  defective               Int
-  createdAt               DateTime                @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime                @updatedAt
-  createdById             Int
-  updatedById             Int
-  businessId              Int                     @unique
-  business                Business                @relation(fields: [businessId], references: [id])
-  createdBy               User                    @relation("InventoriesCreatedBy", fields: [createdById], references: [id])
-  updatedBy               User                    @relation("InventoriesUpdatedBy", fields: [updatedById], references: [id])
-  productBrandInventories ProductBrandInventory[]
-}
+  id           Int      @id @default(autoincrement())
+  mrp          Int
+  sellingPrice Int
+  sku          String
+  available    Int
+  sold         Int
+  defective    Int
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt
+  createdById  Int
+  updatedById  Int
+  createdBy    User     @relation("InventoriesCreatedBy", fields: [createdById], references: [id])
+  updatedBy    User     @relation("InventoriesUpdatedBy", fields: [updatedById], references: [id])
+  productId    Int
+  product      Product  @relation("ProductsToInventory", fields: [productId], references: [id])
 
-model ProductBrandInventory {
-  id          Int       @id @default(autoincrement())
-  productId   Int
-  inventoryId Int
-  brandId     Int
-  brand       Brand     @relation(fields: [brandId], references: [id])
-  inventory   Inventory @relation(fields: [inventoryId], references: [id])
-  product     Product   @relation(fields: [productId], references: [id])
-  purchases   Purchase[]
-  releases    Release[]
+  purchases PurchaseItem[] @relation("InventoryToPurchase")
+  releases  ReleaseItem[]  @relation("InventoryToRelease")
 }
-
-model MobileInventory {
-  id                            Int                           @id @default(autoincrement())
-  mrp                           Int
-  sellingPrice                  Int
-  sku                           String
-  available                     Int
-  sold                          Int
-  defective                     Int
-  createdAt                     DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt                     DateTime                      @updatedAt
-  createdById                   Int
-  updatedById                   Int
-  userBusinessId                Int                           @unique
-  createdBy                     User                          @relation("MobileInventoriesCreatedBy", fields: [createdById], references: [id])
-  updatedBy                     User                          @relation("MobileInventoriesUpdatedBy", fields: [updatedById], references: [id])
-  userBusiness                  UserBusiness                  @relation(fields: [userBusinessId], references: [id])
-  productBrandMobileInventories ProductBrandMobileInventory[]
-}
-
-model ProductBrandMobileInventory {
-  id                Int             @id @default(autoincrement())
-  productId         Int
-  mobileInventoryId Int
-  brandId           Int
-  brand             Brand           @relation(fields: [brandId], references: [id])
-  mobileInventory   MobileInventory @relation(fields: [mobileInventoryId], references: [id])
-  product           Product         @relation(fields: [productId], references: [id])
-}
-
-model UserPreferences {
-  id                 Int         @id @default(autoincrement())
-  theme              COLOR_THEME @default(LIGHT)
-  selectedBusinessId Int?
-  userId             Int         @unique
-  selectedBusiness   Business?   @relation(fields: [selectedBusinessId], references: [id])
-  user               User        @relation(fields: [userId], references: [id])
-}
-
 
 model Purchase {
-  id                      Int                           @id @default(autoincrement())
-  productBrandInventoryId Int
-  quantity                Int
-  productBrandInventory   ProductBrandInventory         @relation(fields: [productBrandInventoryId], references: [id])
-  createdAt               DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime                      @updatedAt
-  createdById                   Int
-  updatedById                   Int
-  createdBy                     User                    @relation("PurchaseCreatedBy", fields: [createdById], references: [id])
-  updatedBy                     User                    @relation("PurchaseUpdatedBy", fields: [updatedById], references: [id])
+  id          Int            @id @default(autoincrement())
+  createdAt   DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime       @updatedAt
+  createdById Int
+  updatedById Int
+  createdBy   User           @relation("PurchaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User           @relation("PurchaseUpdatedBy", fields: [updatedById], references: [id])
+  items       PurchaseItem[] @relation("PurchaseToItem")
+}
+
+model PurchaseItem {
+  id          Int      @id @default(autoincrement())
+  quantity    Int
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt
+  createdById Int
+  updatedById Int
+  createdBy   User     @relation("CreatedPurchaseItems", fields: [createdById], references: [id])
+  updatedBy   User     @relation("UpdatedPurchaseItems", fields: [updatedById], references: [id])
+  purchaseId  Int
+  purchase    Purchase @relation("PurchaseToItem", fields: [purchaseId], references: [id])
+
+  inventoryId Int
+  inventory   Inventory @relation("InventoryToPurchase", fields: [inventoryId], references: [id])
 }
 
 model Release {
-  id                      Int                           @id @default(autoincrement())
+  id                      Int           @id @default(autoincrement())
   productBrandInventoryId Int
   quantity                Int
   whom                    String
-  productBrandInventory   ProductBrandInventory         @relation(fields: [productBrandInventoryId], references: [id])
-  createdAt               DateTime                      @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime                      @updatedAt
-  createdById                   Int
-  updatedById                   Int
-  createdBy                     User                    @relation("ReleaseCreatedBy", fields: [createdById], references: [id])
-  updatedBy                     User                    @relation("ReleaseUpdatedBy", fields: [updatedById], references: [id])
+  createdAt               DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime      @updatedAt
+  createdById             Int
+  updatedById             Int
+  createdBy               User          @relation("ReleaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy               User          @relation("ReleaseUpdatedBy", fields: [updatedById], references: [id])
+  releases                ReleaseItem[] @relation("ReleaseToItem")
 }
 
-// Audits
+model ReleaseItem {
+  id          Int      @id @default(autoincrement())
+  quantity    Int
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt
+  createdById Int
+  updatedById Int
+  createdBy   User     @relation("CreatedReleaseItems", fields: [createdById], references: [id])
+  updatedBy   User     @relation("UpdatedReleaseItems", fields: [updatedById], references: [id])
+  releaseId   Int
+  release     Release  @relation("ReleaseToItem", fields: [releaseId], references: [id])
 
-model BusinessAudit {
-  id                     Int                    @id @default(autoincrement())
-  businessId             Int                    @unique
-  businessAuditHistories BusinessAuditHistory[]
-
-  @@index([businessId])
-}
-
-model BusinessAuditHistory {
-  id              Int               @id @default(autoincrement())
-  businessAuditId Int
-  type            AUDIT_CHANGE_TYPE
-  change          Json?
-  changedById     Int
-  changedAt       DateTime          @default(now()) @db.Timestamp(6)
-  businessAudit   BusinessAudit     @relation(fields: [businessAuditId], references: [id])
-  changedBy       User              @relation(fields: [changedById], references: [id])
-}
-
-model EmployeeAudit {
-  id                     Int                    @id @default(autoincrement())
-  businessId             Int
-  employmentId           Int                    @unique
-  employeeAuditHistories EmployeeAuditHistory[]
-
-  @@index([businessId, employmentId])
-}
-
-model EmployeeAuditHistory {
-  id              Int               @id @default(autoincrement())
-  employeeAuditId Int
-  type            AUDIT_CHANGE_TYPE
-  change          Json?
-  changedById     Int
-  changedAt       DateTime          @default(now()) @db.Timestamp(6)
-  changedBy       User              @relation(fields: [changedById], references: [id])
-  employeeAudit   EmployeeAudit     @relation(fields: [employeeAuditId], references: [id])
-}
-
-model BrandAudit {
-  id                  Int                 @id @default(autoincrement())
-  businessId          Int
-  brandId             Int                 @unique
-  brandAuditHistories BrandAuditHistory[]
-
-  @@index([businessId, brandId])
-}
-
-model BrandAuditHistory {
-  id           Int               @id @default(autoincrement())
-  brandAuditId Int
-  type         AUDIT_CHANGE_TYPE
-  change       Json?
-  changedById  Int
-  changedAt    DateTime          @default(now()) @db.Timestamp(6)
-  brandAudit   BrandAudit        @relation(fields: [brandAuditId], references: [id])
-  changedBy    User              @relation(fields: [changedById], references: [id])
-}
-
-model CategoryAudit {
-  id                     Int                    @id @default(autoincrement())
-  businessId             Int
-  categoryId             Int                    @unique
-  categoryAuditHistories CategoryAuditHistory[]
-
-  @@index([businessId, categoryId])
-}
-
-model CategoryAuditHistory {
-  id              Int               @id @default(autoincrement())
-  categoryAuditId Int
-  type            AUDIT_CHANGE_TYPE
-  change          Json?
-  changedById     Int
-  changedAt       DateTime          @default(now()) @db.Timestamp(6)
-  categoryAudit   CategoryAudit     @relation(fields: [categoryAuditId], references: [id])
-  changedBy       User              @relation(fields: [changedById], references: [id])
-}
-
-model ProductAudit {
-  id                    Int                   @id @default(autoincrement())
-  businessId            Int
-  productId             Int                   @unique
-  productAuditHistories ProductAuditHistory[]
-
-  @@index([businessId, productId])
-}
-
-model ProductAuditHistory {
-  id             Int               @id @default(autoincrement())
-  productAuditId Int
-  type           AUDIT_CHANGE_TYPE
-  change         Json?
-  changedById    Int
-  changedAt      DateTime          @default(now()) @db.Timestamp(6)
-  changedBy      User              @relation(fields: [changedById], references: [id])
-  productAudit   ProductAudit      @relation(fields: [productAuditId], references: [id])
-}
-
-model InventoryAudit {
-  id                      Int                     @id @default(autoincrement())
-  businessId              Int
-  inventoryId             Int                     @unique
-  inventoryAuditHistories InventoryAuditHistory[]
-
-  @@index([businessId, inventoryId])
-}
-
-model InventoryAuditHistory {
-  id               Int               @id @default(autoincrement())
-  inventoryAuditId Int
-  type             AUDIT_CHANGE_TYPE
-  change           Json?
-  changedById      Int
-  changedAt        DateTime          @default(now()) @db.Timestamp(6)
-  changedBy        User              @relation(fields: [changedById], references: [id])
-  inventoryAudit   InventoryAudit    @relation(fields: [inventoryAuditId], references: [id])
-}
-
-model SupplierAudit {
-  id                     Int                    @id @default(autoincrement())
-  businessId             Int
-  employmentId           Int                    @unique
-  supplierAuditHistories SupplierAuditHistory[]
-
-  @@index([businessId, employmentId])
-}
-
-model SupplierAuditHistory {
-  id              Int               @id @default(autoincrement())
-  supplierAuditId Int
-  type            AUDIT_CHANGE_TYPE
-  change          Json?
-  changedById     Int
-  changedAt       DateTime          @default(now()) @db.Timestamp(6)
-  changedBy       User              @relation(fields: [changedById], references: [id])
-  supplierAudit   SupplierAudit     @relation(fields: [supplierAuditId], references: [id])
-}
-
-model MobileInventoryAudit {
-  id                      Int                           @id @default(autoincrement())
-  businessId              Int
-  mobileInventoryId       Int                           @unique
-  inventoryAuditHistories MobileInventoryAuditHistory[]
-
-  @@index([businessId, mobileInventoryId])
-}
-
-model MobileInventoryAuditHistory {
-  id                     Int                  @id @default(autoincrement())
-  mobileInventoryAuditId Int
-  type                   AUDIT_CHANGE_TYPE
-  change                 Json?
-  changedById            Int
-  changedAt              DateTime             @default(now()) @db.Timestamp(6)
-  changedBy              User                 @relation(fields: [changedById], references: [id])
-  mobileInventoryAudit   MobileInventoryAudit @relation(fields: [mobileInventoryAuditId], references: [id])
+  inventoryId Int
+  inventory   Inventory @relation("InventoryToRelease", fields: [inventoryId], references: [id])
 }
 
 enum USER_TYPE {
@@ -434,21 +152,4 @@ enum USER_TYPE {
   MANAGER
   EMPLOYEE
   SUPPLIER
-}
-
-enum PERMISSION_LEVEL {
-  BUSINESS
-  EMPLOYEE
-  INVENTORY
-}
-
-enum COLOR_THEME {
-  LIGHT
-  DARK
-}
-
-enum AUDIT_CHANGE_TYPE {
-  CREATION
-  UPDATION
-  DELETION
 }

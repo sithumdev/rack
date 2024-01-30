@@ -17,11 +17,6 @@ export async function createProduct(product: any) {
         barcode: product.barcode,
         price: product.price,
         weight: product.weight,
-        business: {
-          connect: {
-            id: product.businessId,
-          },
-        },
         category: {
           connect: {
             id: product.categoryId,

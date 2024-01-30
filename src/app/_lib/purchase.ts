@@ -10,10 +10,16 @@ export async function getPurchaseInvoices(): Promise<{
       include: {
         createdBy: true,
         updatedBy: true,
-        productBrandInventory: {
+        items: {
           include: {
-            product: true,
-            inventory: true,
+            createdBy: true,
+            updatedBy: true,
+            inventory: {
+              select: {
+                mrp: true,
+                product: true,
+              },
+            },
           },
         },
       },
@@ -21,9 +27,15 @@ export async function getPurchaseInvoices(): Promise<{
 
     const formatted: PurchaseType[] = purchaseInvoices.map((invoice) => ({
       id: invoice.id,
-      mrp: invoice.productBrandInventory.inventory.mrp,
-      name: invoice.productBrandInventory.product.name,
-      quantity: invoice.quantity,
+      items: invoice.items.map((item) => ({
+        id: item.id,
+        mrp: item.inventory.mrp,
+        name: item.inventory.product.name,
+        quantity: item.quantity,
+        createdBy: item.createdBy.name,
+        updatedBy: item.updatedBy.name,
+        updatedAt: item.updatedAt,
+      })),
       createdBy: invoice.createdBy.name,
       updatedBy: invoice.updatedBy.name,
       updatedAt: invoice.updatedAt,
@@ -31,6 +43,8 @@ export async function getPurchaseInvoices(): Promise<{
 
     return { purchaseInvoices: formatted };
   } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }
@@ -52,21 +66,30 @@ export async function createPurchaseInvoice(invoice: any) {
       },
     });
 
-    const foundProductBrandInventory =
-      await prisma.productBrandInventory.findFirstOrThrow({
-        where: {
-          inventoryId: invoice.inventoryId,
-        },
-      });
-
     const createdPurchaseInvoice = await prisma.purchase.create({
       data: {
-        productBrandInventory: {
-          connect: {
-            id: foundProductBrandInventory.id,
+        items: {
+          createMany: {
+            data: invoice.items.map((item: any) => ({
+              quantity: item.quantity,
+              inventory: {
+                connect: {
+                  id: invoice.inventoryId,
+                },
+              },
+              createdBy: {
+                connect: {
+                  id: invoice.createdBy,
+                },
+              },
+              updatedBy: {
+                connect: {
+                  id: invoice.updatedBy,
+                },
+              },
+            })),
           },
         },
-        quantity: invoice.quantity,
         createdBy: {
           connect: {
             id: invoice.createdBy,

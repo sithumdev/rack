@@ -1,15 +1,15 @@
 "use client";
 
 import { supabaseClient } from "@/app/_lib/supabase";
-import { useBusinessStore } from "@/app/_store";
+import { getPermissionByName } from "@/app/_lib/utilities";
 import { createUserAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Dialog, FormControl, TextInput } from "@primer/react";
+import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
-import { useEffect, useRef, useState } from "react";
+import { USER_TYPE } from "@prisma/client";
+import { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateUserSchema, { CreateUserSchemaType } from "./schema/create.schema";
-import { User } from "@supabase/supabase-js";
 
 type ICreateUpdateUser = {
   open: boolean;
@@ -17,20 +17,6 @@ type ICreateUpdateUser = {
 };
 
 export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
-  const selectedBusiness = useBusinessStore((state) => state.business);
-
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabaseClient.auth.getSession();
-
-      if (data && data.session && data.session.user) {
-        setCurrentUser(data.session.user);
-      }
-    })();
-  }, []);
-
   const returnFocusRef = useRef(null);
 
   const {
@@ -38,12 +24,13 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<CreateUserSchemaType>({
     resolver: zodResolver(CreateUserSchema),
   });
 
   const onSubmit: SubmitHandler<CreateUserSchemaType> = async (data) => {
-    const { email, password, phone, name } = data;
+    const { email, password, phone, name, type } = data;
 
     try {
       const { data: createdUser, error } = await supabaseClient.auth.signUp({
@@ -56,8 +43,7 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
         await createUserAction({
           email,
           name,
-          assignedBy: currentUser?.email,
-          businessId: selectedBusiness?.id,
+          type,
         });
         reset();
         onClose();
@@ -161,6 +147,21 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
                   {errors.confirmPassword.message}
                 </FormControl.Validation>
               )}
+            </FormControl>
+
+            <FormControl>
+              <FormControl.Label>Role</FormControl.Label>
+              <Select
+                onChange={(e) => {
+                  setValue("type", getPermissionByName(e.target.value));
+                }}
+              >
+                {Object.keys(USER_TYPE).map((type) => (
+                  <Select.Option key={type} value={type}>
+                    {type}
+                  </Select.Option>
+                ))}
+              </Select>
             </FormControl>
           </div>
           <Table.Divider />

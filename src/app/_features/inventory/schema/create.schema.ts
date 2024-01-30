@@ -7,7 +7,6 @@ const CreateInventorySchema = z.object({
   sold: z.string().min(1),
   defective: z.string().min(1),
   productId: z.string().min(1),
-  brandId: z.string().min(1),
 });
 
 export type CreateInventorySchemaType = z.infer<typeof CreateInventorySchema>;

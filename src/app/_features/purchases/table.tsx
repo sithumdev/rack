@@ -1,28 +1,15 @@
 "use client";
 
-import { InventoryType, PurchaseType } from "@/app/_lib/types";
-import { Button, Label, RelativeTime } from "@primer/react";
+import { PurchaseType } from "@/app/_lib/types";
+import { Button, RelativeTime } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
-import { User } from "@prisma/client";
-import { useCallback, useState } from "react";
-import CreateUpdatePurchase from "./create-update";
+import Link from "next/link";
 
 type IPurchasesTable = {
   rows: PurchaseType[];
-  currentUser: User;
-  inventories: InventoryType[];
 };
 
-export default function PurchasesTable({
-  rows,
-  currentUser,
-  inventories,
-}: IPurchasesTable) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const onDialogClose = useCallback(() => setIsOpen(false), []);
-  const onDialogOpen = useCallback(() => setIsOpen(true), []);
-
+export default function PurchasesTable({ rows }: IPurchasesTable) {
   return (
     <>
       <Table.Container>
@@ -30,7 +17,9 @@ export default function PurchasesTable({
           Purchase Invoices
         </Table.Title>
         <Table.Actions>
-          <Button onClick={onDialogOpen}>Create Purchase</Button>
+          <Button>
+            <Link href="purchases/new">Create Purchase</Link>
+          </Button>
         </Table.Actions>
         <Table.Divider />
         <Table.Subtitle as="p" id="repositories-subtitle">
@@ -41,22 +30,6 @@ export default function PurchasesTable({
           aria-describedby="repositories-subtitle"
           data={rows}
           columns={[
-            {
-              header: "Inventory",
-              field: "name",
-              renderCell: (row) => {
-                return (
-                  <Label>
-                    {row.name} - {row.mrp}
-                  </Label>
-                );
-              },
-            },
-            {
-              header: "Quantity",
-              field: "quantity",
-              rowHeader: true,
-            },
             {
               header: "Created By",
               field: "createdBy",
@@ -77,12 +50,6 @@ export default function PurchasesTable({
           ]}
         />
       </Table.Container>
-      <CreateUpdatePurchase
-        open={isOpen}
-        onClose={onDialogClose}
-        currentUser={currentUser}
-        inventories={inventories}
-      />
     </>
   );
 }

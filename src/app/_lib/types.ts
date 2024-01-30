@@ -10,11 +10,35 @@ export type InventoryType = {
   updatedAt: Date;
 };
 
+export type PurchaseItemType = {
+  id: number;
+  mrp: number;
+  name: string;
+  quantity: number;
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: Date;
+};
+
 export type PurchaseType = {
   id: number;
-  name: string;
-  mrp: number;
-  quantity: number;
+  items: PurchaseItemType[];
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: Date;
+};
+
+export type ReleaseType = {
+  id: number;
+  items: ReleaseItemType[];
+  whom: string;
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: Date;
+};
+
+export type ReleaseItemType = {
+  id: number;
   createdBy: string;
   updatedBy: string;
   updatedAt: Date;

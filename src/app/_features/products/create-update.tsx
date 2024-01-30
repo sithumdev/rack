@@ -1,6 +1,5 @@
 "use client";
 
-import { useBusinessStore } from "@/app/_store";
 import { createProductAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
@@ -25,8 +24,6 @@ export default function CreateUpdateProduct({
   currentUser,
   categories,
 }: ICreateProduct) {
-  const selectedBusiness = useBusinessStore((state) => state.business);
-
   const returnFocusRef = useRef(null);
 
   const {
@@ -50,7 +47,6 @@ export default function CreateUpdateProduct({
       categoryId: Number(data.categoryId),
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
-      businessId: selectedBusiness?.id,
     });
     reset();
     onClose();

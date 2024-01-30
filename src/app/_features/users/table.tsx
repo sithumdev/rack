@@ -35,13 +35,13 @@ export default function UsersTable({ rows }: IUsersTable) {
           data={rows}
           columns={[
             {
-              header: "ID",
-              field: "id",
+              header: "Name",
+              field: "name",
               rowHeader: true,
             },
             {
-              header: "Name",
-              field: "name",
+              header: "Role",
+              field: "type",
               rowHeader: true,
             },
             {

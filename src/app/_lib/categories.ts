@@ -9,19 +9,6 @@ export async function getCategories() {
   }
 }
 
-export async function getCategoriesByUserEmail(email: string) {
-  try {
-    // const user =
-  } catch (error) {}
-
-  try {
-    const categories = await prisma.category.findMany();
-    return { categories };
-  } catch (error) {
-    return { error };
-  }
-}
-
 export async function createCategory(category: any) {
   try {
     const createdCategory = await prisma.category.create({
@@ -38,11 +25,6 @@ export async function createCategory(category: any) {
           },
         },
         description: category.description,
-        business: {
-          connect: {
-            id: category.businessId,
-          },
-        },
       },
     });
     return { category: createdCategory };

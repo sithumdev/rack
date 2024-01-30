@@ -1,11 +1,10 @@
 "use client";
 
-import { useBusinessStore } from "@/app/_store";
 import { createInventoryAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
-import { Brand, Product, User } from "@prisma/client";
+import { Product, User } from "@prisma/client";
 import { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateInventorySchema, {
@@ -17,7 +16,6 @@ type IInventory = {
   onClose: () => void;
   currentUser: User;
   products: Product[];
-  brands: Brand[];
 };
 
 export default function CreateUpdateInventory({
@@ -25,10 +23,7 @@ export default function CreateUpdateInventory({
   onClose,
   currentUser,
   products,
-  brands,
 }: IInventory) {
-  const selectedBusiness = useBusinessStore((state) => state.business);
-
   const returnFocusRef = useRef(null);
 
   const {
@@ -40,7 +35,6 @@ export default function CreateUpdateInventory({
   } = useForm<CreateInventorySchemaType>({
     defaultValues: {
       productId: products.length > 0 ? String(products[0].id) : "0",
-      brandId: brands.length > 0 ? String(brands[0].id) : "0",
     },
     resolver: zodResolver(CreateInventorySchema),
   });
@@ -48,19 +42,15 @@ export default function CreateUpdateInventory({
   console.log(errors);
 
   const onSubmit: SubmitHandler<CreateInventorySchemaType> = async (data) => {
-    console.log(data);
-
     await createInventoryAction({
       ...data,
       productId: Number(data.productId),
-      brandId: Number(data.brandId),
       sellingPrice: Number(data.sellingPrice),
       available: Number(data.available),
       sold: Number(data.sold),
       defective: Number(data.defective),
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
-      businessId: selectedBusiness?.id,
     });
     reset();
     onClose();
@@ -92,21 +82,6 @@ export default function CreateUpdateInventory({
                       value={product.id.toString()}
                     >
                       {product.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl>
-                <FormControl.Label>Brand</FormControl.Label>
-                <Select
-                  onChange={(e) => {
-                    setValue("brandId", e.target.value);
-                  }}
-                >
-                  {brands.map((brand) => (
-                    <Select.Option key={brand.id} value={brand.id.toString()}>
-                      {brand.name}
                     </Select.Option>
                   ))}
                 </Select>

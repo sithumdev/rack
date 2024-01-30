@@ -1,27 +1,34 @@
 import prisma from "./prisma";
 import { InventoryType } from "./types";
 
-export async function getInventory(): Promise<{
+export async function getInventory(query: string = ""): Promise<{
   inventory?: InventoryType[];
   error?: unknown;
 }> {
   try {
-    const inventory = await prisma.productBrandInventory.findMany({
+    const inventory = await prisma.inventory.findMany({
       include: {
-        inventory: true,
         product: true,
+      },
+      where: {
+        product: {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
       },
     });
 
     const formatted: InventoryType[] = inventory.map((inventory) => ({
       name: inventory.product.name,
-      available: inventory.inventory.available,
-      defective: inventory.inventory.defective,
-      sku: inventory.inventory.sku,
-      sellingPrice: inventory.inventory.sellingPrice,
-      mrp: inventory.inventory.mrp,
-      sold: inventory.inventory.sold,
-      updatedAt: inventory.inventory.updatedAt,
+      available: inventory.available,
+      defective: inventory.defective,
+      sku: inventory.sku,
+      sellingPrice: inventory.sellingPrice,
+      mrp: inventory.mrp,
+      sold: inventory.sold,
+      updatedAt: inventory.updatedAt,
       id: inventory.id,
     }));
 
@@ -47,9 +54,9 @@ export async function createInventory(inventory: any) {
         available: inventory.available,
         sold: inventory.sold,
         defective: inventory.defective,
-        business: {
+        product: {
           connect: {
-            id: inventory.businessId,
+            id: inventory.productId,
           },
         },
         createdBy: {
@@ -60,26 +67,6 @@ export async function createInventory(inventory: any) {
         updatedBy: {
           connect: {
             id: inventory.createdBy,
-          },
-        },
-      },
-    });
-
-    await prisma.productBrandInventory.create({
-      data: {
-        brand: {
-          connect: {
-            id: inventory.brandId,
-          },
-        },
-        product: {
-          connect: {
-            id: inventory.productId,
-          },
-        },
-        inventory: {
-          connect: {
-            id: createdInventory.id,
           },
         },
       },
