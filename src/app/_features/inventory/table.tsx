@@ -16,6 +16,7 @@ export default function InventoryTable({
   currentUser,
   products,
 }: IInventoryTable) {
+  const [change, setChange] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState<string>("");
 
@@ -43,7 +44,7 @@ export default function InventoryTable({
         }
       }
     })();
-  }, [query]);
+  }, [query, change]);
 
   return (
     <>
@@ -122,6 +123,7 @@ export default function InventoryTable({
         onClose={onDialogClose}
         currentUser={currentUser}
         products={products}
+        onChangeHandler={() => setChange((prev) => !prev)}
       />
     </>
   );

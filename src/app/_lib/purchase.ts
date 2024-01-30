@@ -51,42 +51,15 @@ export async function getPurchaseInvoices(): Promise<{
 
 export async function createPurchaseInvoice(invoice: any) {
   try {
-    const foundInventory = await prisma.inventory.findUniqueOrThrow({
-      where: {
-        id: invoice.inventoryId,
-      },
-    });
-
-    await prisma.inventory.update({
-      where: {
-        id: invoice.inventoryId,
-      },
-      data: {
-        available: foundInventory.available + invoice.quantity,
-      },
-    });
-
     const createdPurchaseInvoice = await prisma.purchase.create({
       data: {
         items: {
           createMany: {
             data: invoice.items.map((item: any) => ({
               quantity: item.quantity,
-              inventory: {
-                connect: {
-                  id: invoice.inventoryId,
-                },
-              },
-              createdBy: {
-                connect: {
-                  id: invoice.createdBy,
-                },
-              },
-              updatedBy: {
-                connect: {
-                  id: invoice.updatedBy,
-                },
-              },
+              inventoryId: item.inventoryId,
+              createdById: invoice.createdBy,
+              updatedById: invoice.updatedBy,
             })),
           },
         },
@@ -101,7 +74,28 @@ export async function createPurchaseInvoice(invoice: any) {
           },
         },
       },
+      include: {
+        items: {
+          include: {
+            inventory: true,
+          },
+        },
+      },
     });
+
+    await Promise.all(
+      createdPurchaseInvoice.items.map(async (item) => {
+        await prisma.inventory.update({
+          where: {
+            id: item.inventoryId,
+          },
+          data: {
+            available: item.inventory.available + item.quantity,
+          },
+        });
+      })
+    );
+
     return { invoice: createdPurchaseInvoice };
   } catch (error) {
     console.log(error);

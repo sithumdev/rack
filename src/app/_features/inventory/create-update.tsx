@@ -14,6 +14,7 @@ import CreateInventorySchema, {
 type IInventory = {
   open: boolean;
   onClose: () => void;
+  onChangeHandler: () => void;
   currentUser: User;
   products: Product[];
 };
@@ -21,6 +22,7 @@ type IInventory = {
 export default function CreateUpdateInventory({
   open,
   onClose,
+  onChangeHandler,
   currentUser,
   products,
 }: IInventory) {
@@ -39,8 +41,6 @@ export default function CreateUpdateInventory({
     resolver: zodResolver(CreateInventorySchema),
   });
 
-  console.log(errors);
-
   const onSubmit: SubmitHandler<CreateInventorySchemaType> = async (data) => {
     await createInventoryAction({
       ...data,
@@ -54,6 +54,7 @@ export default function CreateUpdateInventory({
     });
     reset();
     onClose();
+    onChangeHandler();
   };
 
   return (
