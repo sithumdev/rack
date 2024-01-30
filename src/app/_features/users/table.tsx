@@ -8,7 +8,7 @@ import { CreateUpdateUser } from ".";
 
 type IUsersTable = {
   rows: User[];
-  currentUser: User;
+  currentUser: User | undefined | null;
 };
 
 export default function UsersTable({ rows, currentUser }: IUsersTable) {
@@ -23,12 +23,18 @@ export default function UsersTable({ rows, currentUser }: IUsersTable) {
         <Table.Title as="h2" id="repositories">
           Users
         </Table.Title>
-        {currentUser.type === "MANAGER" ||
-          (currentUser.type === "OWNER" && (
+        {currentUser ? (
+          (currentUser.type === "MANAGER" ||
+            (currentUser && currentUser.type === "OWNER")) && (
             <Table.Actions>
               <Button onClick={onDialogOpen}>Create User</Button>
             </Table.Actions>
-          ))}
+          )
+        ) : (
+          <Table.Actions>
+            <Button onClick={onDialogOpen}>Create User</Button>
+          </Table.Actions>
+        )}
         <Table.Divider />
         <Table.Subtitle as="p" id="repositories-subtitle">
           Users managed by the admin

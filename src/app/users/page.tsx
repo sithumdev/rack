@@ -13,7 +13,7 @@ async function UsersIntermediate({
 }) {
   const { user } = await getUserByEmail(email);
 
-  return <>{user && <UsersTable rows={users} currentUser={user} />} </>;
+  return <UsersTable rows={users} currentUser={user} />;
 }
 
 export default async function Users() {

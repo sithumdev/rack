@@ -1,9 +1,8 @@
 "use client";
 
-import { Button } from "@primer/react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeMinimal } from "@supabase/auth-ui-shared";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 import Image from "next/image";
 import Link from "next/link";
 import { z } from "zod";
@@ -27,7 +26,7 @@ export default function Login() {
         <Image src={Shape} alt="Shape" layout="fill" />
       </div>
 
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 p-10">
         <div className="mobile-shape lg:hidden">
           <Image src={Shape} alt="Shape" width="100" height="100" />
         </div>
@@ -41,7 +40,7 @@ export default function Login() {
         <Auth
           supabaseClient={supabase}
           view="sign_in"
-          appearance={{ theme: ThemeMinimal }}
+          appearance={{ theme: ThemeSupa }}
           theme="dark"
           showLinks={false}
           providers={[]}
@@ -51,15 +50,6 @@ export default function Login() {
         <div className="flex items-center gap-5 text-sm text-blue-500">
           <Link href="/auth/forgot-password">Forgot password?</Link>
           <Link href="/help">Need Help? Contact Support</Link>
-        </div>
-
-        <div className="flex items-center justify-end gap-2">
-          <Button size="large" variant="default">
-            Sign Up
-          </Button>
-          <Button type="submit" size="large" variant="primary">
-            Login
-          </Button>
         </div>
       </div>
     </div>

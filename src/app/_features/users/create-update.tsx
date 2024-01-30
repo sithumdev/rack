@@ -152,6 +152,7 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
             <FormControl>
               <FormControl.Label>Role</FormControl.Label>
               <Select
+                defaultValue={USER_TYPE.EMPLOYEE.toString()}
                 onChange={(e) => {
                   setValue("type", getPermissionByName(e.target.value));
                 }}
