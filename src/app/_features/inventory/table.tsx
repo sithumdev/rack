@@ -117,6 +117,7 @@ export default function InventoryTable({
           ]}
         />
         <Table.Pagination
+          pageSize={15}
           totalCount={inventories.length}
           aria-label="pagination"
         />
