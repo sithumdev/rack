@@ -77,6 +77,10 @@ export default function WrapperContainer({
             </NavList.Item>
 
             <NavList.Item>
+              <Link href="/inventory">Inventory</Link>
+            </NavList.Item>
+
+            <NavList.Item>
               <Link href="/users">Users</Link>
             </NavList.Item>
 
@@ -86,6 +90,10 @@ export default function WrapperContainer({
 
             <NavList.Item>
               <Link href="/categories">Category</Link>
+            </NavList.Item>
+
+            <NavList.Item>
+              <Link href="/brands">Brands</Link>
             </NavList.Item>
 
             <NavList.Item>

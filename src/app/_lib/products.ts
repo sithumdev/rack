@@ -10,8 +10,6 @@ export async function getProducts() {
 }
 
 export async function createProduct(product: any) {
-  console.log(product);
-
   try {
     const createdProduct = await prisma.product.create({
       data: {
@@ -43,8 +41,6 @@ export async function createProduct(product: any) {
     });
     return { user: createdProduct };
   } catch (error) {
-    console.log(error);
-
     return { error };
   }
 }

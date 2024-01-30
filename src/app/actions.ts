@@ -6,6 +6,8 @@ import { createCategory } from "./_lib/categories";
 import { createProduct } from "./_lib/products";
 import { createUser } from "./_lib/users";
 import { createPermission } from "./_lib/permissions";
+import { createInventory } from "./_lib/inventory";
+import { createBrand } from "./_lib/brands";
 
 export async function createUserAction(user: any) {
   await createUser(user);
@@ -29,5 +31,15 @@ export async function createCategoryAction(category: any) {
 
 export async function createPermissionAction(permission: any) {
   await createPermission(permission);
+  revalidatePath("/");
+}
+
+export async function createInventoryAction(inventory: any) {
+  await createInventory(inventory);
+  revalidatePath("/");
+}
+
+export async function createBrandAction(brand: any) {
+  await createBrand(brand);
   revalidatePath("/");
 }

@@ -31,6 +31,7 @@ export async function createUser(user: any) {
         notificationEnabled: false,
         emailVerified: true,
         isActive: true,
+        // TODO: Not included in MVP
         // userBusiness: {
         //   create: {
 
