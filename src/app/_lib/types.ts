@@ -39,6 +39,9 @@ export type ReleaseType = {
 
 export type ReleaseItemType = {
   id: number;
+  mrp: number;
+  name: string;
+  quantity: number;
   createdBy: string;
   updatedBy: string;
   updatedAt: Date;

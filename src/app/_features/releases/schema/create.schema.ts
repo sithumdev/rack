@@ -1,9 +1,15 @@
 import { z } from "zod";
 
 const CreateReleaseSchema = z.object({
-  inventoryId: z.string().min(1),
-  quantity: z.string(),
   whom: z.string().min(1),
+  items: z.array(
+    z.object({
+      name: z.string(),
+      mrp: z.string(),
+      inventoryId: z.string().min(1),
+      quantity: z.string(),
+    })
+  ),
 });
 
 export type CreateReleaseSchemaType = z.infer<typeof CreateReleaseSchema>;

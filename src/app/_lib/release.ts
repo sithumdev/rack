@@ -2,73 +2,69 @@ import prisma from "./prisma";
 import { ReleaseType } from "./types";
 
 export async function getReleaseInvoices(): Promise<{
-  releaseInvoices?: ReleaseType[];
+  releases?: ReleaseType[];
   error?: unknown;
 }> {
   try {
-    const releaseInvoices = await prisma.release.findMany({
+    const purchaseInvoices = await prisma.release.findMany({
       include: {
         createdBy: true,
         updatedBy: true,
-        productBrandInventory: {
+        releases: {
           include: {
-            product: true,
-            inventory: true,
+            createdBy: true,
+            updatedBy: true,
+            inventory: {
+              select: {
+                mrp: true,
+                product: true,
+              },
+            },
           },
         },
       },
     });
 
-    const formatted: ReleaseType[] = releaseInvoices.map((invoice) => ({
+    const formatted: ReleaseType[] = purchaseInvoices.map((invoice) => ({
       id: invoice.id,
-      mrp: invoice.productBrandInventory.inventory.mrp,
-      name: invoice.productBrandInventory.product.name,
-      quantity: invoice.quantity,
+      whom: invoice.whom,
+      items: invoice.releases.map((item) => ({
+        id: item.id,
+        mrp: item.inventory.mrp,
+        name: item.inventory.product.name,
+        quantity: item.quantity,
+        createdBy: item.createdBy.name,
+        updatedBy: item.updatedBy.name,
+        updatedAt: item.updatedAt,
+      })),
       createdBy: invoice.createdBy.name,
       updatedBy: invoice.updatedBy.name,
       updatedAt: invoice.updatedAt,
-      whom: invoice.whom,
     }));
 
-    return { releaseInvoices: formatted };
+    return { releases: formatted };
   } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }
 
 export async function createReleaseInvoice(invoice: any) {
   try {
-    const foundInventory = await prisma.inventory.findUniqueOrThrow({
-      where: {
-        id: invoice.inventoryId,
-      },
-    });
-
-    await prisma.inventory.update({
-      where: {
-        id: invoice.inventoryId,
-      },
+    const createdPurchaseInvoice = await prisma.release.create({
       data: {
-        available: foundInventory.available - invoice.quantity,
-      },
-    });
-
-    const foundProductBrandInventory =
-      await prisma.productBrandInventory.findFirstOrThrow({
-        where: {
-          inventoryId: invoice.inventoryId,
-        },
-      });
-
-    const createdReleaseInvoice = await prisma.release.create({
-      data: {
-        productBrandInventory: {
-          connect: {
-            id: foundProductBrandInventory.id,
+        whom: invoice.whom,
+        releases: {
+          createMany: {
+            data: invoice.items.map((item: any) => ({
+              quantity: item.quantity,
+              inventoryId: item.inventoryId,
+              createdById: invoice.createdBy,
+              updatedById: invoice.updatedBy,
+            })),
           },
         },
-        quantity: invoice.quantity,
-        whom: invoice.whom,
         createdBy: {
           connect: {
             id: invoice.createdBy,
@@ -80,8 +76,29 @@ export async function createReleaseInvoice(invoice: any) {
           },
         },
       },
+      include: {
+        releases: {
+          include: {
+            inventory: true,
+          },
+        },
+      },
     });
-    return { invoice: createdReleaseInvoice };
+
+    await Promise.all(
+      createdPurchaseInvoice.releases.map(async (item) => {
+        await prisma.inventory.update({
+          where: {
+            id: item.inventoryId,
+          },
+          data: {
+            available: item.inventory.available - item.quantity,
+          },
+        });
+      })
+    );
+
+    return { invoice: createdPurchaseInvoice };
   } catch (error) {
     console.log(error);
 

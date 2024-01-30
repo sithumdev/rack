@@ -119,8 +119,6 @@ model PurchaseItem {
 
 model Release {
   id                      Int           @id @default(autoincrement())
-  productBrandInventoryId Int
-  quantity                Int
   whom                    String
   createdAt               DateTime      @default(now()) @db.Timestamp(6)
   updatedAt               DateTime      @updatedAt
