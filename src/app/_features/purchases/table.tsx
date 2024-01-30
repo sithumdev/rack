@@ -85,6 +85,7 @@ export default function PurchasesTable({ rows }: IPurchasesTable) {
             },
           ]}
         />
+        <Table.Pagination totalCount={rows.length} aria-label="pagination" />
       </Table.Container>
 
       <Dialog

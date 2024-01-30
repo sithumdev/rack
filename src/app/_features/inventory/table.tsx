@@ -52,9 +52,12 @@ export default function InventoryTable({
         <Table.Title as="h2" id="repositories">
           Inventory
         </Table.Title>
-        <Table.Actions>
-          <Button onClick={onDialogOpen}>Create Inventory</Button>
-        </Table.Actions>
+        {currentUser.type === "MANAGER" ||
+          (currentUser.type === "OWNER" && (
+            <Table.Actions>
+              <Button onClick={onDialogOpen}>Create Inventory</Button>
+            </Table.Actions>
+          ))}
         <Table.Divider />
         <Table.Subtitle as="p" id="repositories-subtitle">
           Inventory managed by the admin

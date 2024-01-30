@@ -2,7 +2,6 @@
 
 import { Label, NavList } from "@primer/react";
 import { User } from "@supabase/supabase-js";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabaseClient } from "../_lib/supabase";
 
@@ -21,6 +20,10 @@ export default function WrapperContainer({
     router.refresh();
   };
 
+  const navigate = (route: string) => {
+    router.push(`/${route}`);
+  };
+
   if (pathname === "/login") {
     return <section className="w-full min-h-screen">{children}</section>;
   }
@@ -30,32 +33,22 @@ export default function WrapperContainer({
       <section className="grid grid-cols-12 container mx-auto p-10">
         <NavList className="col-span-2">
           <NavList.Group>
-            <NavList.Item>
-              <Link href="/">Dashboard</Link>
+            <NavList.Item onClick={() => navigate("")}>Dashboard</NavList.Item>
+            <NavList.Item onClick={() => navigate("inventory")}>
+              Inventory
             </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/inventory">Inventory</Link>
+            <NavList.Item onClick={() => navigate("purchases")}>
+              Purchase
             </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/purchases">Purchase</Link>
+            <NavList.Item onClick={() => navigate("releases")}>
+              Release
             </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/releases">Release</Link>
+            <NavList.Item onClick={() => navigate("users")}>Users</NavList.Item>
+            <NavList.Item onClick={() => navigate("products")}>
+              Products
             </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/users">Users</Link>
-            </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/products">Products</Link>
-            </NavList.Item>
-
-            <NavList.Item>
-              <Link href="/categories">Category</Link>
+            <NavList.Item onClick={() => navigate("categories")}>
+              Category
             </NavList.Item>
 
             <NavList.Item onClick={logout}>Logout</NavList.Item>

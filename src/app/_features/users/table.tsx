@@ -8,9 +8,10 @@ import { CreateUpdateUser } from ".";
 
 type IUsersTable = {
   rows: User[];
+  currentUser: User;
 };
 
-export default function UsersTable({ rows }: IUsersTable) {
+export default function UsersTable({ rows, currentUser }: IUsersTable) {
   const [isOpen, setIsOpen] = useState(false);
 
   const onDialogClose = useCallback(() => setIsOpen(false), []);
@@ -22,9 +23,12 @@ export default function UsersTable({ rows }: IUsersTable) {
         <Table.Title as="h2" id="repositories">
           Users
         </Table.Title>
-        <Table.Actions>
-          <Button onClick={onDialogOpen}>Create User</Button>
-        </Table.Actions>
+        {currentUser.type === "MANAGER" ||
+          (currentUser.type === "OWNER" && (
+            <Table.Actions>
+              <Button onClick={onDialogOpen}>Create User</Button>
+            </Table.Actions>
+          ))}
         <Table.Divider />
         <Table.Subtitle as="p" id="repositories-subtitle">
           Users managed by the admin

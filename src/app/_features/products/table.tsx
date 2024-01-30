@@ -71,6 +71,7 @@ export default function ProductsTable({
             },
           ]}
         />
+        <Table.Pagination totalCount={rows.length} aria-label="pagination" />
       </Table.Container>
       <CreateUpdateProduct
         open={isOpen}

@@ -90,6 +90,7 @@ export default function ReleasesTable({ rows }: IReleasesTable) {
             },
           ]}
         />
+        <Table.Pagination totalCount={rows.length} aria-label="pagination" />
       </Table.Container>
 
       <Dialog
