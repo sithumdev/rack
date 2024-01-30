@@ -10,6 +10,8 @@ export async function getProducts() {
 }
 
 export async function createProduct(product: any) {
+  console.log(product);
+
   try {
     const createdProduct = await prisma.product.create({
       data: {
@@ -27,12 +29,22 @@ export async function createProduct(product: any) {
             id: product.categoryId,
           },
         },
-        createdBy: product.createdBy,
-        updatedBy: product.updatedBy,
+        createdBy: {
+          connect: {
+            id: product.createdBy,
+          },
+        },
+        updatedBy: {
+          connect: {
+            id: product.updatedBy,
+          },
+        },
       },
     });
     return { user: createdProduct };
   } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }

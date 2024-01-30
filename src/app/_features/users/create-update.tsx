@@ -25,8 +25,6 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
     (async () => {
       const { data, error } = await supabaseClient.auth.getSession();
 
-      console.log(data.session);
-
       if (data && data.session && data.session.user) {
         setCurrentUser(data.session.user);
       }

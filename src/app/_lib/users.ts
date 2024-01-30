@@ -31,6 +31,11 @@ export async function createUser(user: any) {
         notificationEnabled: false,
         emailVerified: true,
         isActive: true,
+        // userBusiness: {
+        //   create: {
+
+        //   }
+        // },
       },
     });
     return { user: createdUser };

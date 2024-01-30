@@ -84,6 +84,14 @@ export default function WrapperContainer({
               <Link href="/products">Products</Link>
             </NavList.Item>
 
+            <NavList.Item>
+              <Link href="/categories">Category</Link>
+            </NavList.Item>
+
+            <NavList.Item>
+              <Link href="/permissions">Permissions</Link>
+            </NavList.Item>
+
             <NavList.Item onClick={logout}>Logout</NavList.Item>
             <NavList.Item>
               <p>{currentUser?.email}</p>
