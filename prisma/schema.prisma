@@ -43,6 +43,8 @@ model User {
   userBusiness             UserBusiness[]                @relation("Employments")
   createdPurchases                Purchase[]                     @relation("PurchaseCreatedBy")
   updatedPurchases                Purchase[]                     @relation("PurchaseUpdatedBy")
+  createdReleases                Release[]                     @relation("ReleaseCreatedBy")
+  updatedReleases                Release[]                     @relation("ReleaseUpdatedBy")
   userPreferences          UserPreferences?
 }
 
@@ -197,6 +199,7 @@ model ProductBrandInventory {
   inventory   Inventory @relation(fields: [inventoryId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
   purchases   Purchase[]
+  releases    Release[]
 }
 
 model MobileInventory {
@@ -249,6 +252,20 @@ model Purchase {
   updatedById                   Int
   createdBy                     User                    @relation("PurchaseCreatedBy", fields: [createdById], references: [id])
   updatedBy                     User                    @relation("PurchaseUpdatedBy", fields: [updatedById], references: [id])
+}
+
+model Release {
+  id                      Int                           @id @default(autoincrement())
+  productBrandInventoryId Int
+  quantity                Int
+  whom                    String
+  productBrandInventory   ProductBrandInventory         @relation(fields: [productBrandInventoryId], references: [id])
+  createdAt               DateTime                      @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime                      @updatedAt
+  createdById                   Int
+  updatedById                   Int
+  createdBy                     User                    @relation("ReleaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy                     User                    @relation("ReleaseUpdatedBy", fields: [updatedById], references: [id])
 }
 
 // Audits

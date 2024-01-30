@@ -81,6 +81,10 @@ export default function WrapperContainer({
             </NavList.Item>
 
             <NavList.Item>
+              <Link href="/purchases">Purchase</Link>
+            </NavList.Item>
+
+            <NavList.Item>
               <Link href="/users">Users</Link>
             </NavList.Item>
 

@@ -9,3 +9,13 @@ export type InventoryType = {
   sold: number;
   updatedAt: Date;
 };
+
+export type PurchaseType = {
+  id: number;
+  name: string;
+  mrp: number;
+  quantity: number;
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: Date;
+};
