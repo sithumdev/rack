@@ -10,6 +10,7 @@ export async function getUsers() {
     });
     return { users };
   } catch (error) {
+    Sentry.captureException(error);
     return { error };
   }
 }
@@ -23,6 +24,7 @@ export async function getUserByEmail(email: string) {
     });
     return { user };
   } catch (error) {
+    Sentry.captureException(error);
     return { error };
   }
 }
