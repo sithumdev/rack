@@ -58,6 +58,10 @@ export default function WrapperContainer({
                 Category
               </NavList.Item>
 
+              <NavList.Item onClick={() => navigate("downloads")}>
+                Downloads
+              </NavList.Item>
+
               <NavList.Item onClick={logout}>Logout</NavList.Item>
               <NavList.Item>
                 <Label variant="accent">{currentUser?.email}</Label>

@@ -33,6 +33,19 @@ export async function getProducts(
   }
 }
 
+export async function getAllProducts(): Promise<{
+  products?: any[];
+  error?: unknown;
+}> {
+  try {
+    const products = await prisma.product.findMany();
+
+    return { products };
+  } catch (error) {
+    return { error };
+  }
+}
+
 export async function createProduct(product: any) {
   try {
     const createdProduct = await prisma.product.create({
