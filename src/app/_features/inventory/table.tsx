@@ -1,9 +1,17 @@
 "use client";
 
+import { INVENTORY_LEVEL, TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { InventoryType } from "@/app/_lib/types";
-import { Button, FormControl, RelativeTime, TextInput } from "@primer/react";
+import {
+  Button,
+  FormControl,
+  Label,
+  RelativeTime,
+  TextInput,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { Product, User } from "@prisma/client";
+import numeral from "numeral";
 import { useCallback, useEffect, useState } from "react";
 import CreateUpdateInventory from "./create-update";
 
@@ -19,6 +27,8 @@ export default function InventoryTable({
   const [change, setChange] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
 
   const [inventories, setInventories] = useState<InventoryType[]>([]);
 
@@ -30,6 +40,8 @@ export default function InventoryTable({
       const formData = new FormData();
 
       formData.append("query", query);
+      formData.append("take", TABLE_ROW_SIZE.toString());
+      formData.append("skip", page.toString());
 
       const response = await fetch("/api/inventory", {
         method: "POST",
@@ -41,10 +53,11 @@ export default function InventoryTable({
 
         if (data && Object.hasOwn(data, "inventory")) {
           setInventories(data.inventory);
+          setTotal(data.total);
         }
       }
     })();
-  }, [query, change]);
+  }, [query, change, page]);
 
   return (
     <>
@@ -83,9 +96,11 @@ export default function InventoryTable({
               rowHeader: true,
             },
             {
-              header: "MRP",
+              header: "MRP (Rs)",
               field: "mrp",
-              rowHeader: true,
+              renderCell: (row) => {
+                return <span>{numeral(row.mrp).format("0,0")}</span>;
+              },
             },
             {
               header: "SKU",
@@ -93,19 +108,34 @@ export default function InventoryTable({
               rowHeader: true,
             },
             {
-              header: "Sold",
-              field: "sold",
-              rowHeader: true,
-            },
-            {
-              header: "Defective",
+              header: "Barcode",
               field: "defective",
-              rowHeader: true,
+              renderCell: (row) => {
+                return <Label>{row.barcode}</Label>;
+              },
             },
+            // {
+            //   header: "Sold",
+            //   field: "sold",
+            //   rowHeader: true,
+            // },
+            // {
+            //   header: "Defective",
+            //   field: "defective",
+            //   rowHeader: true,
+            // },
             {
               header: "Available",
               field: "available",
-              rowHeader: true,
+              renderCell: (row) => {
+                if (row.available > INVENTORY_LEVEL.LOW) {
+                  return <Label variant="success">{row.available}</Label>;
+                } else if (row.available > INVENTORY_LEVEL.DANGER) {
+                  return <Label variant="attention">{row.available}</Label>;
+                }
+
+                return <Label variant="danger">{row.available}</Label>;
+              },
             },
             {
               header: "Updated",
@@ -117,9 +147,12 @@ export default function InventoryTable({
           ]}
         />
         <Table.Pagination
-          pageSize={15}
-          totalCount={inventories.length}
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
           aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
         />
       </Table.Container>
       <CreateUpdateInventory

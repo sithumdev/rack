@@ -1,20 +1,47 @@
 "use client";
 
+import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { PurchaseType } from "@/app/_lib/types";
-import { ActionList, Button, Dialog, Label, RelativeTime } from "@primer/react";
+import { Button, Dialog, Label, RelativeTime } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type IPurchasesTable = {
-  rows: PurchaseType[];
-};
-
-export default function PurchasesTable({ rows }: IPurchasesTable) {
+export default function PurchasesTable() {
   const returnFocusRef = useRef(null);
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+
+  const [purchases, setPurchases] = useState<PurchaseType[]>([]);
+
   const [purchase, setPurchase] = useState<PurchaseType | undefined>(undefined);
+
+  useEffect(() => {
+    (async () => {
+      const formData = new FormData();
+
+      formData.append("query", query);
+      formData.append("take", TABLE_ROW_SIZE.toString());
+      formData.append("skip", page.toString());
+
+      const response = await fetch("/api/purchase", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        if (data && Object.hasOwn(data, "purchaseInvoices")) {
+          setPurchases(data.purchaseInvoices);
+          setTotal(data.total);
+        }
+      }
+    })();
+  }, [query, page]);
 
   return (
     <>
@@ -34,7 +61,7 @@ export default function PurchasesTable({ rows }: IPurchasesTable) {
         <DataTable
           aria-labelledby="repositories"
           aria-describedby="repositories-subtitle"
-          data={rows}
+          data={purchases}
           columns={[
             {
               header: "ID",
@@ -66,7 +93,7 @@ export default function PurchasesTable({ rows }: IPurchasesTable) {
               },
             },
             {
-              header: "ID",
+              header: "Action",
               field: "id",
               renderCell: (row) => {
                 return (
@@ -86,9 +113,12 @@ export default function PurchasesTable({ rows }: IPurchasesTable) {
           ]}
         />
         <Table.Pagination
-          pageSize={15}
-          totalCount={rows.length}
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
           aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
         />
       </Table.Container>
 

@@ -1,9 +1,33 @@
+import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 
-export async function getProducts() {
+export async function getProducts(
+  query: string = "",
+  take = TABLE_ROW_SIZE,
+  skip = 0
+): Promise<{
+  products?: any[];
+  total?: number;
+  error?: unknown;
+}> {
   try {
-    const products = await prisma.product.findMany();
-    return { products };
+    const products = await prisma.product.findMany({
+      skip,
+      take,
+      where: {
+        name: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const total = await prisma.product.count();
+
+    return { products, total };
   } catch (error) {
     return { error };
   }
@@ -36,6 +60,8 @@ export async function createProduct(product: any) {
     });
     return { user: createdProduct };
   } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }

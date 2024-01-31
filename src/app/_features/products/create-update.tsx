@@ -14,6 +14,7 @@ import CreateProductSchema, {
 type ICreateProduct = {
   open: boolean;
   onClose: () => void;
+  onChangeHandler: () => void;
   currentUser: User;
   categories: Category[];
 };
@@ -21,6 +22,7 @@ type ICreateProduct = {
 export default function CreateUpdateProduct({
   open,
   onClose,
+  onChangeHandler,
   currentUser,
   categories,
 }: ICreateProduct) {
@@ -50,6 +52,7 @@ export default function CreateUpdateProduct({
     });
     reset();
     onClose();
+    onChangeHandler();
   };
 
   return (

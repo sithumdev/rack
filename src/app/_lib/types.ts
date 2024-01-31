@@ -1,6 +1,7 @@
 export type InventoryType = {
   id: number;
   name: string;
+  barcode: string;
   mrp: number;
   sellingPrice: number;
   available: number;

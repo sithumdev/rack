@@ -1,5 +1,5 @@
 import { CreateUpdatePurchase } from "@/app/_features/purchases";
-import { getInventory } from "@/app/_lib/inventory";
+import { getAllInventories } from "@/app/_lib/inventory";
 import { supabaseClientServer } from "@/app/_lib/supabase-server";
 import { InventoryType } from "@/app/_lib/types";
 import { getUserByEmail } from "@/app/_lib/users";
@@ -24,7 +24,7 @@ async function PurchasesIntermediate({
 }
 
 export default async function NewPurchase() {
-  const { inventory } = await getInventory();
+  const { inventory } = await getAllInventories();
 
   const {
     data: { session },

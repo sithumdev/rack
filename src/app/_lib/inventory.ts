@@ -1,8 +1,14 @@
+import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { InventoryType } from "./types";
 
-export async function getInventory(query: string = ""): Promise<{
+export async function getInventory(
+  query: string = "",
+  take = TABLE_ROW_SIZE,
+  skip = 0
+): Promise<{
   inventory?: InventoryType[];
+  total?: number;
   error?: unknown;
 }> {
   try {
@@ -18,6 +24,11 @@ export async function getInventory(query: string = ""): Promise<{
           },
         },
       },
+      skip,
+      take,
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
     const formatted: InventoryType[] = inventory.map((inventory) => ({
@@ -30,10 +41,90 @@ export async function getInventory(query: string = ""): Promise<{
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       id: inventory.id,
+      barcode: inventory.product.barcode,
+    }));
+
+    const total = await prisma.inventory.count();
+
+    return { inventory: formatted, total };
+  } catch (error) {
+    console.log(error);
+
+    return { error };
+  }
+}
+
+export async function getAllAvailableInventory(): Promise<{
+  inventory?: InventoryType[];
+  error?: unknown;
+}> {
+  try {
+    const inventory = await prisma.inventory.findMany({
+      include: {
+        product: true,
+      },
+      where: {
+        available: {
+          gt: 0,
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formatted: InventoryType[] = inventory.map((inventory) => ({
+      name: inventory.product.name,
+      available: inventory.available,
+      defective: inventory.defective,
+      sku: inventory.sku,
+      sellingPrice: inventory.sellingPrice,
+      mrp: inventory.mrp,
+      sold: inventory.sold,
+      updatedAt: inventory.updatedAt,
+      id: inventory.id,
+      barcode: inventory.product.barcode,
     }));
 
     return { inventory: formatted };
   } catch (error) {
+    console.log(error);
+
+    return { error };
+  }
+}
+
+export async function getAllInventories(): Promise<{
+  inventory?: InventoryType[];
+  error?: unknown;
+}> {
+  try {
+    const inventory = await prisma.inventory.findMany({
+      include: {
+        product: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formatted: InventoryType[] = inventory.map((inventory) => ({
+      name: inventory.product.name,
+      available: inventory.available,
+      defective: inventory.defective,
+      sku: inventory.sku,
+      sellingPrice: inventory.sellingPrice,
+      mrp: inventory.mrp,
+      sold: inventory.sold,
+      updatedAt: inventory.updatedAt,
+      id: inventory.id,
+      barcode: inventory.product.barcode,
+    }));
+
+    return { inventory: formatted };
+  } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }

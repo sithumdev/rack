@@ -1,8 +1,14 @@
+import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { PurchaseType } from "./types";
 
-export async function getPurchaseInvoices(): Promise<{
+export async function getPurchaseInvoices(
+  query: string = "",
+  take = TABLE_ROW_SIZE,
+  skip = 0
+): Promise<{
   purchaseInvoices?: PurchaseType[];
+  total?: number;
   error?: unknown;
 }> {
   try {
@@ -23,6 +29,17 @@ export async function getPurchaseInvoices(): Promise<{
           },
         },
       },
+      skip,
+      take,
+      // where: {
+      //   name: {
+      //     contains: query,
+      //     mode: "insensitive",
+      //   },
+      // },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
     const formatted: PurchaseType[] = purchaseInvoices.map((invoice) => ({
@@ -41,7 +58,9 @@ export async function getPurchaseInvoices(): Promise<{
       updatedAt: invoice.updatedAt,
     }));
 
-    return { purchaseInvoices: formatted };
+    const total = await prisma.purchase.count();
+
+    return { purchaseInvoices: formatted, total };
   } catch (error) {
     console.log(error);
 

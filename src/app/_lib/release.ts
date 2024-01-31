@@ -1,8 +1,14 @@
+import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { ReleaseType } from "./types";
 
-export async function getReleaseInvoices(): Promise<{
+export async function getReleaseInvoices(
+  query: string = "",
+  take = TABLE_ROW_SIZE,
+  skip = 0
+): Promise<{
   releases?: ReleaseType[];
+  total?: number;
   error?: unknown;
 }> {
   try {
@@ -23,6 +29,19 @@ export async function getReleaseInvoices(): Promise<{
           },
         },
       },
+      skip,
+      take,
+      where: {
+        AND: {
+          whom: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
     const formatted: ReleaseType[] = purchaseInvoices.map((invoice) => ({
@@ -42,7 +61,9 @@ export async function getReleaseInvoices(): Promise<{
       updatedAt: invoice.updatedAt,
     }));
 
-    return { releases: formatted };
+    const total = await prisma.release.count();
+
+    return { releases: formatted, total };
   } catch (error) {
     console.log(error);
 

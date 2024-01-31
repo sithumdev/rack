@@ -3,25 +3,24 @@
 import { InventoryType } from "@/app/_lib/types";
 import { createReleaseInvoiceAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ActionList,
-  Button,
-  Dialog,
-  FormControl,
-  Label,
-  Select,
-  TextInput,
-} from "@primer/react";
+import { Button, Dialog, FormControl, Label, TextInput } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { useRef, useState } from "react";
+import {
+  FormProvider,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
+import ReleaseItem from "./release-item";
 import CreateReleaseSchema, {
   CreateReleaseSchemaType,
 } from "./schema/create.schema";
+import numeral from "numeral";
 
-function getDefaultInventory(inventories: InventoryType[]) {
+export function getDefaultInventory(inventories: InventoryType[]) {
   return inventories.length > 0 ? inventories[0] : null;
 }
 
@@ -41,17 +40,7 @@ export default function CreateUpdateRelease({
   const [openReview, setOpenReview] = useState<boolean>(false);
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    control,
-    watch,
-    setError,
-    clearErrors,
-  } = useForm<CreateReleaseSchemaType>({
+  const methods = useForm<CreateReleaseSchemaType>({
     defaultValues: {
       items: [
         {
@@ -59,11 +48,21 @@ export default function CreateUpdateRelease({
           quantity: "0",
           mrp: String(getDefaultInventory(inventories)?.mrp) || "",
           name: getDefaultInventory(inventories)?.name || "",
+          available: getDefaultInventory(inventories)?.available || 0,
         },
       ],
     },
     resolver: zodResolver(CreateReleaseSchema),
   });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    control,
+    watch,
+  } = methods;
 
   const values = watch();
 
@@ -90,145 +89,66 @@ export default function CreateUpdateRelease({
     router.push("/releases");
   };
 
-  useEffect(() => {
-    values.items.map((item, index) => {
-      const foundInventory = inventories.find(
-        (inventory) => inventory.id === Number(item.inventoryId)
-      );
-
-      if (foundInventory && Number(item.quantity) > foundInventory?.available) {
-        setError(`items.${index}.quantity`, {
-          type: "max",
-          message: `Only ${foundInventory.available} available`,
-        });
-      } else {
-        clearErrors(`items.${index}.quantity`);
-      }
-    });
-  }, [values.items, setError, inventories, clearErrors]);
-
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-3 p-3">
-          <FormControl id={"whom"}>
-            <FormControl.Label>Sales Rep</FormControl.Label>
-            <TextInput
-              type="text"
-              className="w-full"
-              placeholder="Sales Rep"
-              {...register(`whom`)}
-              validationStatus={errors.whom && "error"}
-            />
-            {errors.whom && (
-              <FormControl.Validation variant="error">
-                Sales Rep name is required
-              </FormControl.Validation>
-            )}
-          </FormControl>
-          {fields.map((field, index) => (
-            <>
-              <ActionList showDividers key={index}>
-                <ActionList.Item>
-                  <div className="flex items-end gap-4">
-                    <FormControl>
-                      <FormControl.Label>Inventory</FormControl.Label>
-                      <Select
-                        onChange={(e) => {
-                          setValue(
-                            `items.${index}.inventoryId`,
-                            e.target.value
-                          );
-
-                          setValue(
-                            `items.${index}.name`,
-                            inventories.find(
-                              (inventory) =>
-                                inventory.id === Number(e.target.value)
-                            )?.name || ""
-                          );
-
-                          setValue(
-                            `items.${index}.mrp`,
-                            String(
-                              inventories.find(
-                                (inventory) =>
-                                  inventory.id === Number(e.target.value)
-                              )?.mrp
-                            ) || ""
-                          );
-                        }}
-                      >
-                        {inventories.map((inventory) => (
-                          <Select.Option
-                            key={inventory.id}
-                            value={inventory.id.toString()}
-                          >
-                            {inventory.name} - {inventory.mrp}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </FormControl>
-
-                    <FormControl id={"quantity"}>
-                      <FormControl.Label>Quantity</FormControl.Label>
-                      <TextInput
-                        type="number"
-                        className="w-full"
-                        placeholder="Quantity"
-                        {...register(`items.${index}.quantity`)}
-                        validationStatus={
-                          errors.items &&
-                          errors?.items[index]?.quantity &&
-                          "error"
-                        }
-                      />
-                      {errors.items && errors?.items[index]?.quantity && (
-                        <FormControl.Validation variant="error">
-                          {errors?.items[index]?.quantity?.type === "max"
-                            ? errors?.items[index]?.quantity?.message
-                            : "Quantity is required"}
-                        </FormControl.Validation>
-                      )}
-                    </FormControl>
-
-                    <Button
-                      onClick={() => {
-                        setOpen(true);
-                        setRemovingIndex(index);
-                      }}
-                    >
-                      X
-                    </Button>
-                  </div>
-                </ActionList.Item>
-              </ActionList>
-            </>
-          ))}
-          <div className="flex justify-end">
-            <Button
-              variant="default"
-              onClick={() => {
-                append({
-                  inventoryId:
-                    String(getDefaultInventory(inventories)?.id) || "0",
-                  quantity: "0",
-                  name: getDefaultInventory(inventories)?.name || "",
-                  mrp: String(getDefaultInventory(inventories)?.mrp) || "",
-                });
-              }}
-            >
-              Add
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-3 p-3">
+            <FormControl id={"whom"}>
+              <FormControl.Label>Sales Rep</FormControl.Label>
+              <TextInput
+                type="text"
+                className="w-full"
+                placeholder="Sales Rep"
+                {...register(`whom`)}
+                validationStatus={errors.whom && "error"}
+              />
+              {errors.whom && (
+                <FormControl.Validation variant="error">
+                  Sales Rep name is required
+                </FormControl.Validation>
+              )}
+            </FormControl>
+            {fields.map((field, index) => (
+              <>
+                <ReleaseItem
+                  index={index}
+                  key={index}
+                  inventories={inventories}
+                  removeHandler={(index) => {
+                    setOpen(true);
+                    setRemovingIndex(index);
+                  }}
+                />
+              </>
+            ))}
+            <div className="flex justify-end">
+              <Button
+                variant="default"
+                onClick={() => {
+                  append({
+                    inventoryId:
+                      String(getDefaultInventory(inventories)?.id) || "0",
+                    quantity: "0",
+                    name: getDefaultInventory(inventories)?.name || "",
+                    mrp: String(getDefaultInventory(inventories)?.mrp) || "",
+                    available: getDefaultInventory(inventories)?.available || 0,
+                  });
+                }}
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+          <Table.Divider />
+          <div className="flex items-center gap-2 justify-end p-2">
+            <Button type="submit" variant="primary">
+              Review & Create
             </Button>
           </div>
-        </div>
-        <Table.Divider />
-        <div className="flex items-center gap-2 justify-end p-2">
-          <Button type="submit" variant="primary">
-            Review & Create
-          </Button>
-        </div>
-      </form>
+        </form>
+      </FormProvider>
+
       <Dialog
         returnFocusRef={returnFocusRef}
         isOpen={open}
@@ -287,20 +207,37 @@ export default function CreateUpdateRelease({
                 rowHeader: true,
               },
               {
+                header: "Available",
+                field: "available",
+                renderCell: (row) => {
+                  return (
+                    <Label variant="attention">
+                      {numeral(row.available).format("0,0")}
+                    </Label>
+                  );
+                },
+              },
+              {
                 header: "Quantity",
                 field: "quantity",
                 renderCell: (row) => {
-                  return <Label>{row.quantity}</Label>;
+                  return <Label>{numeral(row.quantity).format("0,0")}</Label>;
                 },
               },
             ]}
           />
           <Table.Divider />
+          <span>{JSON.stringify(values)}</span>
           <div className="flex items-center gap-2 justify-end p-2">
             <Button variant="invisible" onClick={() => setOpenReview(false)}>
               Cancel
             </Button>
             <Button
+              disabled={
+                values.items.filter(
+                  (item) => Number(item.quantity) > item.available
+                ).length > 0
+              }
               variant="primary"
               onClick={() => {
                 setOpenReview(false);

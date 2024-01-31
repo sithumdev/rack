@@ -1,20 +1,53 @@
 "use client";
 
+import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { ReleaseType } from "@/app/_lib/types";
-import { Button, Dialog, Label, RelativeTime } from "@primer/react";
+import {
+  Button,
+  Dialog,
+  FormControl,
+  Label,
+  RelativeTime,
+  TextInput,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type IReleasesTable = {
-  rows: ReleaseType[];
-};
-
-export default function ReleasesTable({ rows }: IReleasesTable) {
+export default function ReleasesTable() {
   const returnFocusRef = useRef(null);
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+
+  const [releases, setReleases] = useState<ReleaseType[]>([]);
   const [release, setRelease] = useState<ReleaseType | undefined>(undefined);
+
+  useEffect(() => {
+    (async () => {
+      const formData = new FormData();
+
+      formData.append("query", query);
+      formData.append("take", TABLE_ROW_SIZE.toString());
+      formData.append("skip", page.toString());
+
+      const response = await fetch("/api/release", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        if (data && Object.hasOwn(data, "releases")) {
+          setReleases(data.releases);
+          setTotal(data.total);
+        }
+      }
+    })();
+  }, [query, page]);
 
   return (
     <>
@@ -31,10 +64,20 @@ export default function ReleasesTable({ rows }: IReleasesTable) {
         <Table.Subtitle as="p" id="repositories-subtitle">
           Release invoices managed by the admin
         </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
         <DataTable
           aria-labelledby="repositories"
           aria-describedby="repositories-subtitle"
-          data={rows}
+          data={releases}
           columns={[
             {
               header: "ID",
@@ -71,7 +114,7 @@ export default function ReleasesTable({ rows }: IReleasesTable) {
               },
             },
             {
-              header: "ID",
+              header: "Action",
               field: "id",
               renderCell: (row) => {
                 return (
@@ -91,9 +134,12 @@ export default function ReleasesTable({ rows }: IReleasesTable) {
           ]}
         />
         <Table.Pagination
-          pageSize={15}
-          totalCount={rows.length}
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
           aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
         />
       </Table.Container>
 

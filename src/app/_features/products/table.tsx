@@ -1,26 +1,62 @@
 "use client";
 
-import { Button, Label, RelativeTime } from "@primer/react";
+import {
+  Button,
+  FormControl,
+  Label,
+  RelativeTime,
+  TextInput,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { Category, Product, User } from "@prisma/client";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CreateUpdateProduct from "./create-update";
+import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
+import numeral from "numeral";
 
 type IProductsTable = {
-  rows: Product[];
   categories: Category[];
   currentUser: User;
 };
 
 export default function ProductsTable({
-  rows,
   currentUser,
   categories,
 }: IProductsTable) {
+  const [change, setChange] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+
+  const [products, setProducts] = useState<Product[]>([]);
 
   const onDialogClose = useCallback(() => setIsOpen(false), []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
+
+  useEffect(() => {
+    (async () => {
+      const formData = new FormData();
+
+      formData.append("query", query);
+      formData.append("take", TABLE_ROW_SIZE.toString());
+      formData.append("skip", page.toString());
+
+      const response = await fetch("/api/product", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        if (data && Object.hasOwn(data, "products")) {
+          setProducts(data.products);
+          setTotal(data.total);
+        }
+      }
+    })();
+  }, [query, change, page]);
 
   return (
     <>
@@ -35,10 +71,20 @@ export default function ProductsTable({
         <Table.Subtitle as="p" id="repositories-subtitle">
           Products managed by the admin
         </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
         <DataTable
           aria-labelledby="repositories"
           aria-describedby="repositories-subtitle"
-          data={rows}
+          data={products}
           columns={[
             {
               header: "Name",
@@ -53,14 +99,16 @@ export default function ProductsTable({
               },
             },
             {
-              header: "Weight",
+              header: "Weight (g)",
               field: "weight",
               rowHeader: true,
             },
             {
-              header: "Price",
+              header: "Price (Rs)",
               field: "price",
-              rowHeader: true,
+              renderCell: (row) => {
+                return <span>{numeral(row.price).format("0,0")}</span>;
+              },
             },
             {
               header: "Updated",
@@ -72,9 +120,12 @@ export default function ProductsTable({
           ]}
         />
         <Table.Pagination
-          pageSize={15}
-          totalCount={rows.length}
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
           aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
         />
       </Table.Container>
       <CreateUpdateProduct
@@ -82,6 +133,7 @@ export default function ProductsTable({
         onClose={onDialogClose}
         currentUser={currentUser}
         categories={categories}
+        onChangeHandler={() => setChange((prev) => !prev)}
       />
     </>
   );

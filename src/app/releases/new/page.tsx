@@ -1,5 +1,5 @@
 import { CreateUpdateRelease } from "@/app/_features/releases";
-import { getInventory } from "@/app/_lib/inventory";
+import { getAllAvailableInventory } from "@/app/_lib/inventory";
 import { supabaseClientServer } from "@/app/_lib/supabase-server";
 import { InventoryType } from "@/app/_lib/types";
 import { getUserByEmail } from "@/app/_lib/users";
@@ -24,7 +24,7 @@ async function ReleaseIntermediate({
 }
 
 export default async function NewRelese() {
-  const { inventory } = await getInventory();
+  const { inventory } = await getAllAvailableInventory();
 
   const {
     data: { session },

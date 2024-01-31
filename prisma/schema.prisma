@@ -65,8 +65,6 @@ model Product {
   createdBy   User        @relation("ProductsCreatedBy", fields: [createdById], references: [id])
   updatedBy   User        @relation("ProductsUpdatedBy", fields: [updatedById], references: [id])
   inventories Inventory[] @relation("ProductsToInventory")
-
-  @@unique([name, price])
 }
 
 model Inventory {

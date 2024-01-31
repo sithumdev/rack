@@ -1,4 +1,4 @@
-import { getInventory } from "@/app/_lib/inventory";
+import { getReleaseInvoices } from "@/app/_lib/release";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   const take = String(formData.get("take"));
   const skip = String(formData.get("skip"));
 
-  const { error, inventory, total } = await getInventory(
+  const { error, releases, total } = await getReleaseInvoices(
     query,
     Number(take),
     Number(skip)
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({
-    inventory,
+    releases,
     total,
   });
 }

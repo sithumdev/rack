@@ -2,7 +2,11 @@ import prisma from "./prisma";
 
 export async function getUsers() {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
     return { users };
   } catch (error) {
     return { error };
