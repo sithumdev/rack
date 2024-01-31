@@ -1,5 +1,6 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function getProducts(
   query: string = "",
@@ -73,8 +74,7 @@ export async function createProduct(product: any) {
     });
     return { user: createdProduct };
   } catch (error) {
-    console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }

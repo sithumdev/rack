@@ -1,6 +1,7 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { PurchaseType } from "./types";
+import * as Sentry from "@sentry/nextjs";
 
 export async function getPurchaseInvoices(
   query: string = "",
@@ -117,8 +118,7 @@ export async function createPurchaseInvoice(invoice: any) {
 
     return { invoice: createdPurchaseInvoice };
   } catch (error) {
-    console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }

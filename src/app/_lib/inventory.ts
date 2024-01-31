@@ -1,6 +1,7 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { InventoryType } from "./types";
+import * as Sentry from "@sentry/nextjs";
 
 export async function getInventory(
   query: string = "",
@@ -165,8 +166,7 @@ export async function createInventory(inventory: any) {
 
     return { inventory: createdInventory };
   } catch (error) {
-    console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }

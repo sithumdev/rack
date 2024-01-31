@@ -1,4 +1,5 @@
 import prisma from "./prisma";
+import * as Sentry from "@sentry/nextjs";
 
 export async function getUsers() {
   try {
@@ -46,8 +47,7 @@ export async function createUser(user: any) {
     });
     return { user: createdUser };
   } catch (error) {
-    console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }
