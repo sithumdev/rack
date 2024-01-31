@@ -23,7 +23,7 @@ export default function Login() {
   return (
     <div className="grid grid-cols-2 w-full h-full min-h-screen">
       <div className="overflow-hidden relative w-full h- hidden lg:flex">
-        <Image src={Shape} alt="Shape" layout="fill" />
+        <Image src={Shape} alt="Shape" className="w-full h-full" />
       </div>
 
       <div className="flex flex-col gap-5 p-10">

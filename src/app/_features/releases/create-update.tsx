@@ -227,7 +227,6 @@ export default function CreateUpdateRelease({
             ]}
           />
           <Table.Divider />
-          <span>{JSON.stringify(values)}</span>
           <div className="flex items-center gap-2 justify-end p-2">
             <Button variant="invisible" onClick={() => setOpenReview(false)}>
               Cancel
