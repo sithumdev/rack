@@ -101,7 +101,13 @@ export default function ProductsTable({
             {
               header: "Weight (g)",
               field: "weight",
-              rowHeader: true,
+              renderCell: (row) => {
+                return (
+                  <p className="text-center">
+                    {numeral(row.weight).format("0,0")}
+                  </p>
+                );
+              },
             },
             {
               header: "Price (Rs)",
