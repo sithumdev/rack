@@ -131,6 +131,7 @@ export default function CreateUpdateInventory({
               <FormControl id={"sellingPrice"}>
                 <FormControl.Label>Selling Price</FormControl.Label>
                 <TextInput
+                  leadingVisual="Rs"
                   type="number"
                   className="w-full"
                   placeholder="Selling Price"

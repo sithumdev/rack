@@ -4,3 +4,10 @@ export const INVENTORY_LEVEL = {
   LOW: 100,
   DANGER: 20,
 };
+
+export enum ReportMode {
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEAR;Y",
+}

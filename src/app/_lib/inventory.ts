@@ -130,6 +130,41 @@ export async function getAllInventories(): Promise<{
   }
 }
 
+export async function getInventoryById(id: number): Promise<{
+  inventory?: InventoryType;
+  error?: unknown;
+}> {
+  try {
+    const inventory = await prisma.inventory.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    const formatted: InventoryType = {
+      name: inventory.product.name,
+      available: inventory.available,
+      defective: inventory.defective,
+      sku: inventory.sku,
+      sellingPrice: inventory.sellingPrice,
+      mrp: inventory.mrp,
+      sold: inventory.sold,
+      updatedAt: inventory.updatedAt,
+      id: inventory.id,
+      barcode: inventory.product.barcode,
+    };
+
+    return { inventory: formatted };
+  } catch (error) {
+    console.log(error);
+
+    return { error };
+  }
+}
+
 export async function createInventory(inventory: any) {
   try {
     const foundProduct = await prisma.product.findUniqueOrThrow({

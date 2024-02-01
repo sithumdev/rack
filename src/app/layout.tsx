@@ -5,6 +5,7 @@ import { Wrapper } from "./_components";
 import { APP_NAME } from "./_lib/globals";
 import { supabaseClientServer } from "./_lib/supabase-server";
 import "./globals.css";
+import "@cloudscape-design/global-styles/index.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -1,5 +1,6 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
+import { createProductReporting } from "./product-reporting";
 import { ReleaseType } from "./types";
 import * as Sentry from "@sentry/nextjs";
 
@@ -116,6 +117,16 @@ export async function createReleaseInvoice(invoice: any) {
           data: {
             available: item.inventory.available - item.quantity,
           },
+        });
+      })
+    );
+
+    await Promise.all(
+      createdPurchaseInvoice.releases.map(async (item) => {
+        await createProductReporting({
+          productId: item.inventoryId,
+          count: item.quantity,
+          whom: invoice.whom,
         });
       })
     );
