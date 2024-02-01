@@ -2,7 +2,7 @@
 
 import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { PurchaseType } from "@/app/_lib/types";
-import { Button, Dialog, Label, RelativeTime } from "@primer/react";
+import { Button, Dialog, Label, RelativeTime, Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -19,8 +19,11 @@ export default function PurchasesTable() {
 
   const [purchase, setPurchase] = useState<PurchaseType | undefined>(undefined);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const formData = new FormData();
 
       formData.append("query", query);
@@ -40,87 +43,94 @@ export default function PurchasesTable() {
           setTotal(data.total);
         }
       }
+      setLoading(false);
     })();
   }, [query, page]);
 
   return (
     <>
-      <Table.Container>
-        <Table.Title as="h2" id="repositories">
-          Purchase Invoices
-        </Table.Title>
-        <Table.Actions>
-          <Button>
-            <Link href="purchases/new">Create Purchase</Link>
-          </Button>
-        </Table.Actions>
-        <Table.Divider />
-        <Table.Subtitle as="p" id="repositories-subtitle">
-          Purchase invoices managed by the admin
-        </Table.Subtitle>
-        <DataTable
-          aria-labelledby="repositories"
-          aria-describedby="repositories-subtitle"
-          data={purchases}
-          columns={[
-            {
-              header: "ID",
-              field: "id",
-              rowHeader: true,
-            },
-            {
-              header: "Items",
-              field: "items",
-              renderCell: (row) => {
-                return <Label>{row.items.length}</Label>;
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <Spinner />
+        </div>
+      ) : (
+        <Table.Container>
+          <Table.Title as="h2" id="repositories">
+            Purchase Invoices
+          </Table.Title>
+          <Table.Actions>
+            <Button>
+              <Link href="purchases/new">Create Purchase</Link>
+            </Button>
+          </Table.Actions>
+          <Table.Divider />
+          <Table.Subtitle as="p" id="repositories-subtitle">
+            Purchase invoices managed by the admin
+          </Table.Subtitle>
+          <DataTable
+            aria-labelledby="repositories"
+            aria-describedby="repositories-subtitle"
+            data={purchases}
+            columns={[
+              {
+                header: "ID",
+                field: "id",
+                rowHeader: true,
               },
-            },
-            {
-              header: "Created By",
-              field: "createdBy",
-              rowHeader: true,
-            },
-            {
-              header: "Updated By",
-              field: "updatedBy",
-              rowHeader: true,
-            },
-            {
-              header: "Updated",
-              field: "updatedAt",
-              renderCell: (row) => {
-                return <RelativeTime date={new Date(row.updatedAt)} />;
+              {
+                header: "Items",
+                field: "items",
+                renderCell: (row) => {
+                  return <Label>{row.items.length}</Label>;
+                },
               },
-            },
-            {
-              header: "Action",
-              field: "id",
-              renderCell: (row) => {
-                return (
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => {
-                      setPurchase(row);
-                      setOpen(true);
-                    }}
-                  >
-                    View
-                  </Button>
-                );
+              {
+                header: "Created By",
+                field: "createdBy",
+                rowHeader: true,
               },
-            },
-          ]}
-        />
-        <Table.Pagination
-          pageSize={TABLE_ROW_SIZE}
-          totalCount={total}
-          aria-label="pagination"
-          onChange={(pageIndex) => {
-            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-          }}
-        />
-      </Table.Container>
+              {
+                header: "Updated By",
+                field: "updatedBy",
+                rowHeader: true,
+              },
+              {
+                header: "Updated",
+                field: "updatedAt",
+                renderCell: (row) => {
+                  return <RelativeTime date={new Date(row.updatedAt)} />;
+                },
+              },
+              {
+                header: "Action",
+                field: "id",
+                renderCell: (row) => {
+                  return (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={() => {
+                        setPurchase(row);
+                        setOpen(true);
+                      }}
+                    >
+                      View
+                    </Button>
+                  );
+                },
+              },
+            ]}
+          />
+          <Table.Pagination
+            pageSize={TABLE_ROW_SIZE}
+            totalCount={total}
+            aria-label="pagination"
+            onChange={(pageIndex) => {
+              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+            }}
+          />
+        </Table.Container>
+      )}
 
       <Dialog
         returnFocusRef={returnFocusRef}

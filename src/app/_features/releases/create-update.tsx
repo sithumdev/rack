@@ -9,6 +9,7 @@ import {
   FormControl,
   Label,
   Octicon,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
@@ -75,6 +76,8 @@ export default function CreateUpdateRelease({
   const [openReview, setOpenReview] = useState<boolean>(false);
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const methods = useForm<CreateReleaseSchemaType>({
     defaultValues: {
       items: [
@@ -111,6 +114,7 @@ export default function CreateUpdateRelease({
   };
 
   const create = async () => {
+    setLoading(true);
     await createReleaseInvoiceAction({
       whom: values.whom,
       createdBy: currentUser.id,
@@ -121,6 +125,7 @@ export default function CreateUpdateRelease({
       })),
     });
     reset();
+    setLoading(false);
     router.push("/releases");
   };
 
@@ -285,18 +290,20 @@ export default function CreateUpdateRelease({
               Cancel
             </Button>
             <Button
+              variant="primary"
               disabled={
                 values.items.filter(
                   (item) => Number(item.quantity) > item.available
-                ).length > 0 || hasDuplicateEntries(values)
+                ).length > 0 ||
+                hasDuplicateEntries(values) ||
+                loading
               }
-              variant="primary"
               onClick={() => {
                 setOpenReview(false);
                 create();
               }}
             >
-              Create
+              {loading ? <Spinner size="small" /> : "Create"}
             </Button>
           </div>
         </div>

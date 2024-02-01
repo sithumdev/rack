@@ -8,6 +8,7 @@ import {
   FormControl,
   Label,
   RelativeTime,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
@@ -26,8 +27,11 @@ export default function ReleasesTable() {
   const [releases, setReleases] = useState<ReleaseType[]>([]);
   const [release, setRelease] = useState<ReleaseType | undefined>(undefined);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const formData = new FormData();
 
       formData.append("query", query);
@@ -47,127 +51,134 @@ export default function ReleasesTable() {
           setTotal(data.total);
         }
       }
+      setLoading(false);
     })();
   }, [query, page]);
 
   return (
     <>
-      <Table.Container>
-        <Table.Title as="h2" id="repositories">
-          Release Invoices
-        </Table.Title>
-        <Table.Actions>
-          <Button>
-            <Link href="releases/new">Create Release</Link>
-          </Button>
-        </Table.Actions>
-        <Table.Divider />
-        <Table.Subtitle as="p" id="repositories-subtitle">
-          Release invoices managed by the admin
-        </Table.Subtitle>
-        <FormControl id={"query"}>
-          <FormControl.Label visuallyHidden>Search</FormControl.Label>
-          <TextInput
-            type="text"
-            className="w-full"
-            placeholder="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </FormControl>
-        <DataTable
-          aria-labelledby="repositories"
-          aria-describedby="repositories-subtitle"
-          data={releases}
-          columns={[
-            {
-              header: "ID",
-              field: "id",
-              rowHeader: true,
-            },
-            {
-              header: "Sales Rep",
-              field: "whom",
-              rowHeader: true,
-            },
-            {
-              header: "Items",
-              field: "items",
-              renderCell: (row) => {
-                return <Label>{row.items.length}</Label>;
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <Spinner />
+        </div>
+      ) : (
+        <Table.Container>
+          <Table.Title as="h2" id="repositories">
+            Release Invoices
+          </Table.Title>
+          <Table.Actions>
+            <Button>
+              <Link href="releases/new">Create Release</Link>
+            </Button>
+          </Table.Actions>
+          <Table.Divider />
+          <Table.Subtitle as="p" id="repositories-subtitle">
+            Release invoices managed by the admin
+          </Table.Subtitle>
+          <FormControl id={"query"}>
+            <FormControl.Label visuallyHidden>Search</FormControl.Label>
+            <TextInput
+              type="text"
+              className="w-full"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </FormControl>
+          <DataTable
+            aria-labelledby="repositories"
+            aria-describedby="repositories-subtitle"
+            data={releases}
+            columns={[
+              {
+                header: "ID",
+                field: "id",
+                rowHeader: true,
               },
-            },
-            {
-              header: "Created By",
-              field: "createdBy",
-              rowHeader: true,
-            },
-            {
-              header: "Updated By",
-              field: "updatedBy",
-              rowHeader: true,
-            },
-            {
-              header: "Updated",
-              field: "updatedAt",
-              renderCell: (row) => {
-                return <RelativeTime date={new Date(row.updatedAt)} />;
+              {
+                header: "Sales Rep",
+                field: "whom",
+                rowHeader: true,
               },
-            },
-            {
-              header: "Action",
-              field: "id",
-              renderCell: (row) => {
-                return (
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="primary"
-                      size="small"
-                      onClick={() => {
-                        setRelease(row);
-                        setOpen(true);
-                      }}
-                    >
-                      View
-                    </Button>
-
-                    <Button>
-                      <CSVLink
-                        data={[
-                          [
-                            "id",
-                            "whom",
-                            "itemId",
-                            "mrp",
-                            "name",
-                            "quantity",
-                            "createdBy",
-                            "updatedBy",
-                            "date",
-                          ],
-                          ...row.items.map((item) => {
-                            return [row.id, row.whom, ...Object.values(item)];
-                          }),
-                        ]}
+              {
+                header: "Items",
+                field: "items",
+                renderCell: (row) => {
+                  return <Label>{row.items.length}</Label>;
+                },
+              },
+              {
+                header: "Created By",
+                field: "createdBy",
+                rowHeader: true,
+              },
+              {
+                header: "Updated By",
+                field: "updatedBy",
+                rowHeader: true,
+              },
+              {
+                header: "Updated",
+                field: "updatedAt",
+                renderCell: (row) => {
+                  return <RelativeTime date={new Date(row.updatedAt)} />;
+                },
+              },
+              {
+                header: "Action",
+                field: "id",
+                renderCell: (row) => {
+                  return (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="primary"
+                        size="small"
+                        onClick={() => {
+                          setRelease(row);
+                          setOpen(true);
+                        }}
                       >
-                        Download
-                      </CSVLink>
-                    </Button>
-                  </div>
-                );
+                        View
+                      </Button>
+
+                      <Button>
+                        <CSVLink
+                          data={[
+                            [
+                              "id",
+                              "whom",
+                              "itemId",
+                              "mrp",
+                              "name",
+                              "quantity",
+                              "createdBy",
+                              "updatedBy",
+                              "date",
+                            ],
+                            ...row.items.map((item) => {
+                              return [row.id, row.whom, ...Object.values(item)];
+                            }),
+                          ]}
+                        >
+                          Download
+                        </CSVLink>
+                      </Button>
+                    </div>
+                  );
+                },
               },
-            },
-          ]}
-        />
-        <Table.Pagination
-          pageSize={TABLE_ROW_SIZE}
-          totalCount={total}
-          aria-label="pagination"
-          onChange={(pageIndex) => {
-            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-          }}
-        />
-      </Table.Container>
+            ]}
+          />
+          <Table.Pagination
+            pageSize={TABLE_ROW_SIZE}
+            totalCount={total}
+            aria-label="pagination"
+            onChange={(pageIndex) => {
+              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+            }}
+          />
+        </Table.Container>
+      )}
 
       <Dialog
         returnFocusRef={returnFocusRef}
