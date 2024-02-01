@@ -8,6 +8,7 @@ import {
   FormControl,
   Label,
   Select,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { Table } from "@primer/react/drafts";
@@ -38,6 +39,8 @@ export default function CreateUpdateInventory({
 
   const [selectedProduct, setSelectedProduct] = useState<Product>();
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
@@ -47,11 +50,13 @@ export default function CreateUpdateInventory({
   } = useForm<CreateInventorySchemaType>({
     defaultValues: {
       productId: products.length > 0 ? String(products[0].id) : "0",
+      sellingPrice: products.length > 0 ? String(products[0].price) : "",
     },
     resolver: zodResolver(CreateInventorySchema),
   });
 
   const onSubmit: SubmitHandler<CreateInventorySchemaType> = async (data) => {
+    setLoading(true);
     await createInventoryAction({
       ...data,
       productId: Number(data.productId),
@@ -65,6 +70,7 @@ export default function CreateUpdateInventory({
     reset();
     onClose();
     onChangeHandler();
+    setLoading(false);
   };
 
   return (
@@ -85,11 +91,11 @@ export default function CreateUpdateInventory({
                 <Select
                   onChange={(e) => {
                     setValue("productId", e.target.value);
-                    setSelectedProduct(
-                      products.find(
-                        (product) => product.id === Number(e.target.value)
-                      )
+                    const product = products.find(
+                      (product) => product.id === Number(e.target.value)
                     );
+                    setSelectedProduct(product);
+                    setValue("sellingPrice", String(product?.price) || "0");
                   }}
                 >
                   {products.map((product) => (
@@ -200,8 +206,8 @@ export default function CreateUpdateInventory({
             <Button variant="invisible" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              Create
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? <Spinner size="small" /> : "Create"}
             </Button>
           </div>
         </form>

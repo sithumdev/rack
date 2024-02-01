@@ -7,6 +7,7 @@ import {
   FormControl,
   Label,
   RelativeTime,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
@@ -35,8 +36,11 @@ export default function InventoryTable({
   const onDialogClose = useCallback(() => setIsOpen(false), []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const formData = new FormData();
 
       formData.append("query", query);
@@ -56,105 +60,112 @@ export default function InventoryTable({
           setTotal(data.total);
         }
       }
+      setLoading(false);
     })();
   }, [query, change, page]);
 
   return (
     <>
-      <Table.Container>
-        <Table.Title as="h2" id="repositories">
-          Inventory
-        </Table.Title>
-        {currentUser.type === "MANAGER" ||
-          (currentUser.type === "OWNER" && (
-            <Table.Actions>
-              <Button onClick={onDialogOpen}>Create Inventory</Button>
-            </Table.Actions>
-          ))}
-        <Table.Divider />
-        <Table.Subtitle as="p" id="repositories-subtitle">
-          Inventory managed by the admin
-        </Table.Subtitle>
-        <FormControl id={"query"}>
-          <FormControl.Label visuallyHidden>Search</FormControl.Label>
-          <TextInput
-            type="text"
-            className="w-full"
-            placeholder="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </FormControl>
-        <DataTable
-          aria-labelledby="repositories"
-          aria-describedby="repositories-subtitle"
-          data={inventories}
-          columns={[
-            {
-              header: "Name",
-              field: "name",
-              rowHeader: true,
-            },
-            {
-              header: "MRP (Rs)",
-              field: "mrp",
-              renderCell: (row) => {
-                return <span>{numeral(row.mrp).format("0,0")}</span>;
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <Spinner />
+        </div>
+      ) : (
+        <Table.Container>
+          <Table.Title as="h2" id="repositories">
+            Inventory
+          </Table.Title>
+          {currentUser.type === "MANAGER" ||
+            (currentUser.type === "OWNER" && (
+              <Table.Actions>
+                <Button onClick={onDialogOpen}>Create Inventory</Button>
+              </Table.Actions>
+            ))}
+          <Table.Divider />
+          <Table.Subtitle as="p" id="repositories-subtitle">
+            Inventory managed by the admin
+          </Table.Subtitle>
+          <FormControl id={"query"}>
+            <FormControl.Label visuallyHidden>Search</FormControl.Label>
+            <TextInput
+              type="text"
+              className="w-full"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </FormControl>
+          <DataTable
+            aria-labelledby="repositories"
+            aria-describedby="repositories-subtitle"
+            data={inventories}
+            columns={[
+              {
+                header: "Name",
+                field: "name",
+                rowHeader: true,
               },
-            },
-            {
-              header: "SKU",
-              field: "sku",
-              rowHeader: true,
-            },
-            {
-              header: "Barcode",
-              field: "defective",
-              renderCell: (row) => {
-                return <Label>{row.barcode}</Label>;
+              {
+                header: "MRP (Rs)",
+                field: "mrp",
+                renderCell: (row) => {
+                  return <span>{numeral(row.mrp).format("0,0")}</span>;
+                },
               },
-            },
-            // {
-            //   header: "Sold",
-            //   field: "sold",
-            //   rowHeader: true,
-            // },
-            // {
-            //   header: "Defective",
-            //   field: "defective",
-            //   rowHeader: true,
-            // },
-            {
-              header: "Available",
-              field: "available",
-              renderCell: (row) => {
-                if (row.available > INVENTORY_LEVEL.LOW) {
-                  return <Label variant="success">{row.available}</Label>;
-                } else if (row.available > INVENTORY_LEVEL.DANGER) {
-                  return <Label variant="attention">{row.available}</Label>;
-                }
+              {
+                header: "SKU",
+                field: "sku",
+                rowHeader: true,
+              },
+              {
+                header: "Barcode",
+                field: "defective",
+                renderCell: (row) => {
+                  return <Label>{row.barcode}</Label>;
+                },
+              },
+              // {
+              //   header: "Sold",
+              //   field: "sold",
+              //   rowHeader: true,
+              // },
+              // {
+              //   header: "Defective",
+              //   field: "defective",
+              //   rowHeader: true,
+              // },
+              {
+                header: "Available",
+                field: "available",
+                renderCell: (row) => {
+                  if (row.available > INVENTORY_LEVEL.LOW) {
+                    return <Label variant="success">{row.available}</Label>;
+                  } else if (row.available > INVENTORY_LEVEL.DANGER) {
+                    return <Label variant="attention">{row.available}</Label>;
+                  }
 
-                return <Label variant="danger">{row.available}</Label>;
+                  return <Label variant="danger">{row.available}</Label>;
+                },
               },
-            },
-            {
-              header: "Updated",
-              field: "updatedAt",
-              renderCell: (row) => {
-                return <RelativeTime date={new Date(row.updatedAt)} />;
+              {
+                header: "Updated",
+                field: "updatedAt",
+                renderCell: (row) => {
+                  return <RelativeTime date={new Date(row.updatedAt)} />;
+                },
               },
-            },
-          ]}
-        />
-        <Table.Pagination
-          pageSize={TABLE_ROW_SIZE}
-          totalCount={total}
-          aria-label="pagination"
-          onChange={(pageIndex) => {
-            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-          }}
-        />
-      </Table.Container>
+            ]}
+          />
+          <Table.Pagination
+            pageSize={TABLE_ROW_SIZE}
+            totalCount={total}
+            aria-label="pagination"
+            onChange={(pageIndex) => {
+              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+            }}
+          />
+        </Table.Container>
+      )}
       <CreateUpdateInventory
         open={isOpen}
         onClose={onDialogClose}
