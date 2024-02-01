@@ -1,10 +1,10 @@
 "use client";
 
-import { createProductAction } from "@/app/actions";
+import { createProductAction, updateProductAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
-import { Category, User } from "@prisma/client";
+import { Category, Product, User } from "@prisma/client";
 import { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateProductSchema, {
@@ -17,7 +17,21 @@ type ICreateProduct = {
   onChangeHandler: () => void;
   currentUser: User;
   categories: Category[];
+  product: Product | undefined;
+  isUpdate?: boolean;
 };
+
+function getDefaultCategory(
+  product: Product | undefined,
+  categories: Category[]
+) {
+  if (product) {
+    return product.categoryId;
+  } else if (categories.length > 0) {
+    return categories[0].id;
+  }
+  return 0;
+}
 
 export default function CreateUpdateProduct({
   open,
@@ -25,6 +39,8 @@ export default function CreateUpdateProduct({
   onChangeHandler,
   currentUser,
   categories,
+  isUpdate = false,
+  product,
 }: ICreateProduct) {
   const returnFocusRef = useRef(null);
 
@@ -36,20 +52,35 @@ export default function CreateUpdateProduct({
     setValue,
   } = useForm<CreateProductSchemaType>({
     defaultValues: {
-      categoryId: categories.length > 0 ? categories[0].id : 0,
+      categoryId: getDefaultCategory(product, categories),
+      name: product?.name || "",
+      barcode: product?.barcode || "",
+      price: product?.price.toString() || "",
+      weight: product?.weight.toString() || "",
     },
     resolver: zodResolver(CreateProductSchema),
   });
 
   const onSubmit: SubmitHandler<CreateProductSchemaType> = async (data) => {
-    await createProductAction({
-      ...data,
-      price: Number(data.price),
-      weight: Number(data.weight),
-      categoryId: Number(data.categoryId),
-      createdBy: currentUser.id,
-      updatedBy: currentUser.id,
-    });
+    if (isUpdate) {
+      await updateProductAction({
+        ...data,
+        id: product?.id,
+        price: Number(data.price),
+        weight: Number(data.weight),
+        categoryId: Number(data.categoryId),
+        updatedBy: currentUser.id,
+      });
+    } else {
+      await createProductAction({
+        ...data,
+        price: Number(data.price),
+        weight: Number(data.weight),
+        categoryId: Number(data.categoryId),
+        createdBy: currentUser.id,
+        updatedBy: currentUser.id,
+      });
+    }
     reset();
     onClose();
     onChangeHandler();
@@ -66,7 +97,7 @@ export default function CreateUpdateProduct({
         <Dialog.Header id="header">Create Product</Dialog.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3 p-3">
-            <FormControl id={"name"}>
+            <FormControl id={"name"} disabled={isUpdate}>
               <FormControl.Label>Name</FormControl.Label>
               <TextInput
                 className="w-full"
@@ -82,7 +113,7 @@ export default function CreateUpdateProduct({
               )}
             </FormControl>
 
-            <FormControl id={"barcode"}>
+            <FormControl id={"barcode"} disabled={isUpdate}>
               <FormControl.Label>Barcode</FormControl.Label>
               <TextInput
                 className="w-full"
@@ -148,7 +179,9 @@ export default function CreateUpdateProduct({
           </div>
           <Table.Divider />
           <div className="flex items-center gap-2 justify-end p-2">
-            <Button variant="invisible">Cancel</Button>
+            <Button variant="invisible" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" variant="primary">
               Create
             </Button>

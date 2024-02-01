@@ -167,7 +167,9 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
           </div>
           <Table.Divider />
           <div className="flex items-center gap-2 justify-end p-2">
-            <Button variant="invisible">Cancel</Button>
+            <Button variant="invisible" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" variant="primary">
               Create
             </Button>

@@ -2,14 +2,22 @@
 
 import { createInventoryAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
+import {
+  Button,
+  Dialog,
+  FormControl,
+  Label,
+  Select,
+  TextInput,
+} from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { Product, User } from "@prisma/client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateInventorySchema, {
   CreateInventorySchemaType,
 } from "./schema/create.schema";
+import numeral from "numeral";
 
 type IInventory = {
   open: boolean;
@@ -27,6 +35,8 @@ export default function CreateUpdateInventory({
   products,
 }: IInventory) {
   const returnFocusRef = useRef(null);
+
+  const [selectedProduct, setSelectedProduct] = useState<Product>();
 
   const {
     register,
@@ -75,6 +85,11 @@ export default function CreateUpdateInventory({
                 <Select
                   onChange={(e) => {
                     setValue("productId", e.target.value);
+                    setSelectedProduct(
+                      products.find(
+                        (product) => product.id === Number(e.target.value)
+                      )
+                    );
                   }}
                 >
                   {products.map((product) => (
@@ -105,6 +120,14 @@ export default function CreateUpdateInventory({
               </FormControl>
             </div>
             <div className="flex flex-col gap-3 p-3">
+              {selectedProduct && (
+                <div className="my-2">
+                  <span className="text-xs">Product Price: </span>
+                  <Label variant="attention">
+                    Rs.{numeral(selectedProduct.price).format("0,0")}
+                  </Label>
+                </div>
+              )}
               <FormControl id={"sellingPrice"}>
                 <FormControl.Label>Selling Price</FormControl.Label>
                 <TextInput
@@ -173,7 +196,9 @@ export default function CreateUpdateInventory({
 
           <Table.Divider />
           <div className="flex items-center gap-2 justify-end p-2">
-            <Button variant="invisible">Cancel</Button>
+            <Button variant="invisible" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" variant="primary">
               Create
             </Button>

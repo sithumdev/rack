@@ -78,3 +78,31 @@ export async function createProduct(product: any) {
     return { error };
   }
 }
+
+export async function updateProduct(product: any) {
+  try {
+    const createdProduct = await prisma.product.update({
+      where: {
+        id: product.id,
+      },
+      data: {
+        price: product.price,
+        weight: product.weight,
+        category: {
+          connect: {
+            id: product.categoryId,
+          },
+        },
+        updatedBy: {
+          connect: {
+            id: product.updatedBy,
+          },
+        },
+      },
+    });
+    return { user: createdProduct };
+  } catch (error) {
+    Sentry.captureException(error);
+    return { error };
+  }
+}

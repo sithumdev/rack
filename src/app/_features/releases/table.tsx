@@ -13,6 +13,7 @@ import {
 import { DataTable, Table } from "@primer/react/drafts";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { CSVLink } from "react-csv";
 
 export default function ReleasesTable() {
   const returnFocusRef = useRef(null);
@@ -118,16 +119,41 @@ export default function ReleasesTable() {
               field: "id",
               renderCell: (row) => {
                 return (
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => {
-                      setRelease(row);
-                      setOpen(true);
-                    }}
-                  >
-                    View
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={() => {
+                        setRelease(row);
+                        setOpen(true);
+                      }}
+                    >
+                      View
+                    </Button>
+
+                    <Button>
+                      <CSVLink
+                        data={[
+                          [
+                            "id",
+                            "whom",
+                            "itemId",
+                            "mrp",
+                            "name",
+                            "quantity",
+                            "createdBy",
+                            "updatedBy",
+                            "date",
+                          ],
+                          ...row.items.map((item) => {
+                            return [row.id, row.whom, ...Object.values(item)];
+                          }),
+                        ]}
+                      >
+                        Download
+                      </CSVLink>
+                    </Button>
+                  </div>
                 );
               },
             },

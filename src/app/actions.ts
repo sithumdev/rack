@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createCategory } from "./_lib/categories";
 import { createInventory } from "./_lib/inventory";
-import { createProduct } from "./_lib/products";
+import { createProduct, updateProduct } from "./_lib/products";
 import { createPurchaseInvoice } from "./_lib/purchase";
 import { createReleaseInvoice } from "./_lib/release";
 import { createUser } from "./_lib/users";
@@ -15,6 +15,11 @@ export async function createUserAction(user: any) {
 
 export async function createProductAction(product: any) {
   await createProduct(product);
+  revalidatePath("/");
+}
+
+export async function updateProductAction(product: any) {
+  await updateProduct(product);
   revalidatePath("/");
 }
 

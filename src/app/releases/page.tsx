@@ -1,5 +1,5 @@
 import { ReleasesTable } from "../_features/releases";
 
-export default async function Releases() {
+export default function Releases() {
   return <ReleasesTable />;
 }
