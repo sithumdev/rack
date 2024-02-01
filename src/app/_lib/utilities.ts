@@ -1,4 +1,5 @@
 import { USER_TYPE } from "@prisma/client";
+import { ReportMode } from "./globals";
 
 export function getPermissionByName(name: string) {
   switch (name) {
@@ -12,5 +13,20 @@ export function getPermissionByName(name: string) {
       return USER_TYPE.SUPPLIER;
     default:
       throw Error("Role not defined");
+  }
+}
+
+export function getReportModeByName(name: string) {
+  switch (name) {
+    case ReportMode.DAILY.toString():
+      return ReportMode.DAILY;
+    case ReportMode.WEEKLY.toString():
+      return ReportMode.WEEKLY;
+    case ReportMode.MONTHLY.toString():
+      return ReportMode.MONTHLY;
+    case ReportMode.YEARLY.toString():
+      return ReportMode.YEARLY;
+    default:
+      throw Error("Mode not defined");
   }
 }
