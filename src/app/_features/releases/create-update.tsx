@@ -3,7 +3,14 @@
 import { InventoryType } from "@/app/_lib/types";
 import { createReleaseInvoiceAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Dialog, FormControl, Label, TextInput } from "@primer/react";
+import {
+  Button,
+  Dialog,
+  FormControl,
+  Label,
+  Octicon,
+  TextInput,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -19,9 +26,37 @@ import CreateReleaseSchema, {
   CreateReleaseSchemaType,
 } from "./schema/create.schema";
 import numeral from "numeral";
+import { AlertIcon } from "@primer/octicons-react";
 
 export function getDefaultInventory(inventories: InventoryType[]) {
   return inventories.length > 0 ? inventories[0] : null;
+}
+
+function hasDuplicateEntries(values: CreateReleaseSchemaType): boolean {
+  const seenIds: Set<string> = new Set();
+
+  for (const entry of values.items) {
+    if (seenIds.has(entry.inventoryId)) {
+      return true;
+    }
+    seenIds.add(entry.inventoryId);
+  }
+
+  return false;
+}
+
+function getDuplicateEntries(values: CreateReleaseSchemaType) {
+  const seenIds: Set<string> = new Set();
+  const duplicateEnties: Set<string> = new Set();
+
+  for (const entry of values.items) {
+    if (seenIds.has(entry.inventoryId)) {
+      duplicateEnties.add(entry.inventoryId);
+    }
+    seenIds.add(entry.inventoryId);
+  }
+
+  return duplicateEnties;
 }
 
 type ICreatePurchase = {
@@ -183,7 +218,7 @@ export default function CreateUpdateRelease({
         aria-labelledby="header"
       >
         <div data-testid="inner">
-          <Dialog.Header id="header">Peview Release Order</Dialog.Header>
+          <Dialog.Header id="header">Preview Release Order</Dialog.Header>
           <div className="flex px-2 py-4 items-center gap-2 text-xs">
             Issuing to <Label variant="accent">{values.whom}</Label>
           </div>
@@ -221,13 +256,31 @@ export default function CreateUpdateRelease({
                 header: "Quantity",
                 field: "quantity",
                 renderCell: (row) => {
-                  return <Label>{numeral(row.quantity).format("0,0")}</Label>;
+                  return (
+                    <div className="flex items-center justify-between w-full">
+                      <Label>{numeral(row.quantity).format("0,0")}</Label>
+                      {getDuplicateEntries(values).size > 0 &&
+                        getDuplicateEntries(values).has(
+                          String(row.inventoryId)
+                        ) && (
+                          <Octicon color="#ffbf00" icon={AlertIcon} size={12} />
+                        )}
+                    </div>
+                  );
                 },
               },
             ]}
           />
           <Table.Divider />
-          <div className="flex items-center gap-2 justify-end p-2">
+          {hasDuplicateEntries(values) && (
+            <div className="my-1 flex justify-end px-2">
+              <p className="text-xs text-red-500">
+                There are duplicate entries. Please resolve them first.
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 justify-end p-2 mt-2">
             <Button variant="invisible" onClick={() => setOpenReview(false)}>
               Cancel
             </Button>
@@ -235,7 +288,7 @@ export default function CreateUpdateRelease({
               disabled={
                 values.items.filter(
                   (item) => Number(item.quantity) > item.available
-                ).length > 0
+                ).length > 0 || hasDuplicateEntries(values)
               }
               variant="primary"
               onClick={() => {

@@ -7,7 +7,7 @@ const CreateReleaseSchema = z.object({
       name: z.string(),
       mrp: z.string(),
       inventoryId: z.string().min(1),
-      quantity: z.string(),
+      quantity: z.string().min(1),
       available: z.number(),
     })
   ),

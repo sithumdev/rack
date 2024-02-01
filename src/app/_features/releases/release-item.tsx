@@ -96,6 +96,7 @@ export default function ReleaseItem({
             <FormControl.Label>Quantity</FormControl.Label>
             <TextInput
               type="number"
+              min={1}
               className="w-full"
               placeholder="Quantity"
               {...register(`items.${index}.quantity`)}
