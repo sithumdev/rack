@@ -126,6 +126,7 @@ export async function createReleaseInvoice(invoice: any) {
         await createProductReporting({
           productId: item.inventoryId,
           count: item.quantity,
+          whom: invoice.whom,
         });
       })
     );
