@@ -143,6 +143,14 @@ model ReleaseItem {
   inventory   Inventory @relation("InventoryToRelease", fields: [inventoryId], references: [id])
 }
 
+model ProductReporting {
+  id          Int      @id @default(autoincrement())
+  productId     Int
+  count       Int
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt
+}
+
 enum USER_TYPE {
   OWNER
   MANAGER

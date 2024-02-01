@@ -131,6 +131,7 @@ export default function CreateUpdateProduct({
             <FormControl id={"price"}>
               <FormControl.Label>Price</FormControl.Label>
               <TextInput
+                leadingVisual="Rs"
                 type="number"
                 className="w-full"
                 placeholder="Price"
@@ -146,6 +147,7 @@ export default function CreateUpdateProduct({
             <FormControl id={"weight"}>
               <FormControl.Label>Weight</FormControl.Label>
               <TextInput
+                trailingVisual="g"
                 type="number"
                 className="w-full"
                 placeholder="Weight"
