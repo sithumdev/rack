@@ -1,5 +1,6 @@
 "use client";
 
+import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import {
   Button,
   FormControl,
@@ -9,10 +10,9 @@ import {
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { Category, Product, User } from "@prisma/client";
+import numeral from "numeral";
 import { useCallback, useEffect, useState } from "react";
 import CreateUpdateProduct from "./create-update";
-import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
-import numeral from "numeral";
 
 type IProductsTable = {
   categories: Category[];
@@ -29,9 +29,16 @@ export default function ProductsTable({
   const [page, setPage] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
 
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [updatingProduct, setUpdatingProduct] = useState<Product>();
+
   const [products, setProducts] = useState<Product[]>([]);
 
-  const onDialogClose = useCallback(() => setIsOpen(false), []);
+  const onDialogClose = useCallback(() => {
+    setIsOpen(false);
+    setIsUpdate(false);
+    setUpdatingProduct(undefined);
+  }, []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
 
   useEffect(() => {
@@ -123,6 +130,24 @@ export default function ProductsTable({
                 return <RelativeTime date={new Date(row.updatedAt)} />;
               },
             },
+            {
+              header: "Action",
+              field: "updatedById",
+              renderCell: (row) => {
+                return (
+                  <Button
+                    variant="invisible"
+                    disabled={currentUser.type === "EMPLOYEE"}
+                    onClick={() => {
+                      setIsUpdate(true);
+                      setUpdatingProduct(row);
+                    }}
+                  >
+                    Update
+                  </Button>
+                );
+              },
+            },
           ]}
         />
         <Table.Pagination
@@ -135,11 +160,14 @@ export default function ProductsTable({
         />
       </Table.Container>
       <CreateUpdateProduct
-        open={isOpen}
+        key={`${isUpdate}`}
+        open={isOpen || isUpdate}
         onClose={onDialogClose}
         currentUser={currentUser}
         categories={categories}
         onChangeHandler={() => setChange((prev) => !prev)}
+        isUpdate={isUpdate}
+        product={updatingProduct}
       />
     </>
   );
