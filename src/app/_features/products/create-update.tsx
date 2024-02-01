@@ -2,10 +2,17 @@
 
 import { createProductAction, updateProductAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Dialog, FormControl, Select, TextInput } from "@primer/react";
+import {
+  Button,
+  Dialog,
+  FormControl,
+  Select,
+  Spinner,
+  TextInput,
+} from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { Category, Product, User } from "@prisma/client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateProductSchema, {
   CreateProductSchemaType,
@@ -44,6 +51,8 @@ export default function CreateUpdateProduct({
 }: ICreateProduct) {
   const returnFocusRef = useRef(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
@@ -62,6 +71,8 @@ export default function CreateUpdateProduct({
   });
 
   const onSubmit: SubmitHandler<CreateProductSchemaType> = async (data) => {
+    setLoading(true);
+
     if (isUpdate) {
       await updateProductAction({
         ...data,
@@ -84,6 +95,7 @@ export default function CreateUpdateProduct({
     reset();
     onClose();
     onChangeHandler();
+    setLoading(false);
   };
 
   return (
@@ -182,8 +194,8 @@ export default function CreateUpdateProduct({
             <Button variant="invisible" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              Create
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? <Spinner size="small" /> : "Create"}
             </Button>
           </div>
         </form>

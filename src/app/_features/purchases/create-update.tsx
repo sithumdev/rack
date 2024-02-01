@@ -10,6 +10,7 @@ import {
   FormControl,
   Label,
   Select,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
@@ -41,6 +42,8 @@ export default function CreateUpdatePurchase({
   const [openReview, setOpenReview] = useState<boolean>(false);
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
@@ -63,8 +66,6 @@ export default function CreateUpdatePurchase({
     resolver: zodResolver(CreatePurchaseSchema),
   });
 
-  console.log(errors);
-
   const values = watch("items");
 
   const { fields, append, remove } = useFieldArray({
@@ -77,6 +78,7 @@ export default function CreateUpdatePurchase({
   };
 
   const create = async () => {
+    setLoading(true);
     await createPurchaseInvoiceAction({
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
@@ -86,6 +88,7 @@ export default function CreateUpdatePurchase({
       })),
     });
     reset();
+    setLoading(false);
     router.push("/purchases");
   };
 
@@ -261,14 +264,16 @@ export default function CreateUpdatePurchase({
             <Button variant="invisible" onClick={() => setOpenReview(false)}>
               Cancel
             </Button>
+
             <Button
               variant="primary"
+              disabled={loading}
               onClick={() => {
                 setOpenReview(false);
                 create();
               }}
             >
-              Create
+              {loading ? <Spinner size="small" /> : "Create"}
             </Button>
           </div>
         </div>
