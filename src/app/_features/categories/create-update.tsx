@@ -2,10 +2,10 @@
 
 import { createCategoryAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Dialog, FormControl, TextInput } from "@primer/react";
+import { Button, Dialog, FormControl, Spinner, TextInput } from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateCategorySchema, {
   CreateCategorySchemaType,
@@ -24,6 +24,8 @@ export default function CreateUpdateCategory({
 }: ICreateCategory) {
   const returnFocusRef = useRef(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
@@ -34,6 +36,7 @@ export default function CreateUpdateCategory({
   });
 
   const onSubmit: SubmitHandler<CreateCategorySchemaType> = async (data) => {
+    setLoading(true);
     await createCategoryAction({
       ...data,
       createdBy: currentUser.id,
@@ -41,6 +44,7 @@ export default function CreateUpdateCategory({
     });
     reset();
     onClose();
+    setLoading(false);
   };
 
   return (
@@ -86,8 +90,8 @@ export default function CreateUpdateCategory({
             <Button variant="invisible" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              Create
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? <Spinner size="small" /> : "Create"}
             </Button>
           </div>
         </form>

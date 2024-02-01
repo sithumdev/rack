@@ -6,6 +6,7 @@ import {
   FormControl,
   Label,
   RelativeTime,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
@@ -34,6 +35,8 @@ export default function ProductsTable({
 
   const [products, setProducts] = useState<Product[]>([]);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const onDialogClose = useCallback(() => {
     setIsOpen(false);
     setIsUpdate(false);
@@ -43,6 +46,8 @@ export default function ProductsTable({
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
+
       const formData = new FormData();
 
       formData.append("query", query);
@@ -62,103 +67,111 @@ export default function ProductsTable({
           setTotal(data.total);
         }
       }
+
+      setLoading(false);
     })();
   }, [query, change, page]);
 
   return (
     <>
-      <Table.Container>
-        <Table.Title as="h2" id="repositories">
-          Products
-        </Table.Title>
-        <Table.Actions>
-          <Button onClick={onDialogOpen}>Create Product</Button>
-        </Table.Actions>
-        <Table.Divider />
-        <Table.Subtitle as="p" id="repositories-subtitle">
-          Products managed by the admin
-        </Table.Subtitle>
-        <FormControl id={"query"}>
-          <FormControl.Label visuallyHidden>Search</FormControl.Label>
-          <TextInput
-            type="text"
-            className="w-full"
-            placeholder="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <Spinner />
+        </div>
+      ) : (
+        <Table.Container>
+          <Table.Title as="h2" id="repositories">
+            Products
+          </Table.Title>
+          <Table.Actions>
+            <Button onClick={onDialogOpen}>Create Product</Button>
+          </Table.Actions>
+          <Table.Divider />
+          <Table.Subtitle as="p" id="repositories-subtitle">
+            Products managed by the admin
+          </Table.Subtitle>
+          <FormControl id={"query"}>
+            <FormControl.Label visuallyHidden>Search</FormControl.Label>
+            <TextInput
+              type="text"
+              className="w-full"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </FormControl>
+          <DataTable
+            aria-labelledby="repositories"
+            aria-describedby="repositories-subtitle"
+            data={products}
+            columns={[
+              {
+                header: "Name",
+                field: "name",
+                rowHeader: true,
+              },
+              {
+                header: "Barcode",
+                field: "barcode",
+                renderCell: (row) => {
+                  return <Label>{row.barcode}</Label>;
+                },
+              },
+              {
+                header: "Weight (g)",
+                field: "weight",
+                renderCell: (row) => {
+                  return (
+                    <p className="text-center">
+                      {numeral(row.weight).format("0,0")}
+                    </p>
+                  );
+                },
+              },
+              {
+                header: "Price (Rs)",
+                field: "price",
+                renderCell: (row) => {
+                  return <span>{numeral(row.price).format("0,0")}</span>;
+                },
+              },
+              {
+                header: "Updated",
+                field: "updatedAt",
+                renderCell: (row) => {
+                  return <RelativeTime date={new Date(row.updatedAt)} />;
+                },
+              },
+              {
+                header: "Action",
+                field: "updatedById",
+                renderCell: (row) => {
+                  return (
+                    <Button
+                      variant="invisible"
+                      disabled={currentUser.type === "EMPLOYEE"}
+                      onClick={() => {
+                        setIsUpdate(true);
+                        setUpdatingProduct(row);
+                      }}
+                    >
+                      Update
+                    </Button>
+                  );
+                },
+              },
+            ]}
           />
-        </FormControl>
-        <DataTable
-          aria-labelledby="repositories"
-          aria-describedby="repositories-subtitle"
-          data={products}
-          columns={[
-            {
-              header: "Name",
-              field: "name",
-              rowHeader: true,
-            },
-            {
-              header: "Barcode",
-              field: "barcode",
-              renderCell: (row) => {
-                return <Label>{row.barcode}</Label>;
-              },
-            },
-            {
-              header: "Weight (g)",
-              field: "weight",
-              renderCell: (row) => {
-                return (
-                  <p className="text-center">
-                    {numeral(row.weight).format("0,0")}
-                  </p>
-                );
-              },
-            },
-            {
-              header: "Price (Rs)",
-              field: "price",
-              renderCell: (row) => {
-                return <span>{numeral(row.price).format("0,0")}</span>;
-              },
-            },
-            {
-              header: "Updated",
-              field: "updatedAt",
-              renderCell: (row) => {
-                return <RelativeTime date={new Date(row.updatedAt)} />;
-              },
-            },
-            {
-              header: "Action",
-              field: "updatedById",
-              renderCell: (row) => {
-                return (
-                  <Button
-                    variant="invisible"
-                    disabled={currentUser.type === "EMPLOYEE"}
-                    onClick={() => {
-                      setIsUpdate(true);
-                      setUpdatingProduct(row);
-                    }}
-                  >
-                    Update
-                  </Button>
-                );
-              },
-            },
-          ]}
-        />
-        <Table.Pagination
-          pageSize={TABLE_ROW_SIZE}
-          totalCount={total}
-          aria-label="pagination"
-          onChange={(pageIndex) => {
-            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-          }}
-        />
-      </Table.Container>
+          <Table.Pagination
+            pageSize={TABLE_ROW_SIZE}
+            totalCount={total}
+            aria-label="pagination"
+            onChange={(pageIndex) => {
+              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+            }}
+          />
+        </Table.Container>
+      )}
       <CreateUpdateProduct
         key={`${isUpdate}`}
         open={isOpen || isUpdate}
