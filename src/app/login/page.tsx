@@ -4,7 +4,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import Image from "next/image";
-import Link from "next/link";
 import { z } from "zod";
 import { APP_NAME } from "../_lib/globals";
 import Shape from "./images/shape.svg";
@@ -21,36 +20,40 @@ export default function Login() {
   const supabase = createClientComponentClient();
 
   return (
-    <div className="grid grid-cols-2 w-full h-full min-h-screen">
-      <div className="overflow-hidden relative w-full h- hidden lg:flex">
-        <Image src={Shape} alt="Shape" className="w-full h-full" />
+    <div className="grid h-full min-h-screen w-full grid-cols-2">
+      <div className="relative hidden h-full w-full overflow-hidden lg:flex">
+        <Image src={Shape} alt="Shape" className="h-full w-full" />
       </div>
 
-      <div className="flex flex-col gap-5 p-10">
+      <div className="col-span-2 flex flex-col gap-5 p-10 lg:col-span-1">
         <div className="mobile-shape lg:hidden">
           <Image src={Shape} alt="Shape" width="100" height="100" />
         </div>
 
         <h3 className="text-xl">Welcome to {APP_NAME} Inventory Platform</h3>
         <p className="text-xs">
-          Please log in to access your account and manage human resources
-          efficiently.
+          Please log in to access your account and manage inventory efficiently.
         </p>
 
         <Auth
           supabaseClient={supabase}
           view="sign_in"
-          appearance={{ theme: ThemeSupa }}
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: "#1f883d",
+                  inputBackground: "#ffffff",
+                },
+              },
+            },
+          }}
           theme="dark"
           showLinks={false}
           providers={[]}
           redirectTo="http://localhost:3000/auth/callback"
         />
-
-        <div className="flex items-center gap-5 text-sm text-blue-500">
-          <Link href="/auth/forgot-password">Forgot password?</Link>
-          <Link href="/help">Need Help? Contact Support</Link>
-        </div>
       </div>
     </div>
   );

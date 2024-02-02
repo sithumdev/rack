@@ -15,7 +15,7 @@ export default function ExportInventory({
   products,
 }: IExportInventory) {
   return (
-    <section className="grid grid-cols-2 gap-2">
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-2">
       <div className="border p-10 roundedn-md">
         <h4 className="text-4xl">Inventory Report</h4>
         <p className="text-xs mb-5 mt-2">

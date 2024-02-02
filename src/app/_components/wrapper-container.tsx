@@ -1,10 +1,12 @@
 "use client";
 
-import { Label, NavList } from "@primer/react";
+import { ThreeBarsIcon } from "@primer/octicons-react";
+import { ActionList, ActionMenu, Label, NavList } from "@primer/react";
 import { User } from "@supabase/supabase-js";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { supabaseClient } from "../_lib/supabase";
+import { SIDE_NAVIGATION } from "../_lib/globals";
 
 export default function WrapperContainer({
   children,
@@ -29,38 +31,21 @@ export default function WrapperContainer({
       <section
         className={clsx(
           currentUser
-            ? " grid grid-cols-12 container mx-auto p-10"
-            : "*:box-border *:p-0 *:m-0 w-full min-h-screen"
+            ? "container relative mx-auto grid grid-cols-12 p-2 lg:p-10"
+            : "min-h-screen w-full *:m-0 *:box-border *:p-0"
         )}
       >
         {currentUser && (
-          <NavList className="col-span-2">
+          <NavList className="col-span-2 hidden lg:block">
             <NavList.Group>
-              <NavList.Item onClick={() => navigate("")}>
-                Dashboard
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("inventory")}>
-                Inventory
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("purchases")}>
-                Purchase
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("releases")}>
-                Release
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("users")}>
-                Users
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("products")}>
-                Products
-              </NavList.Item>
-              <NavList.Item onClick={() => navigate("categories")}>
-                Category
-              </NavList.Item>
-
-              <NavList.Item onClick={() => navigate("downloads")}>
-                Downloads
-              </NavList.Item>
+              {SIDE_NAVIGATION.map((navigation) => (
+                <NavList.Item
+                  key={navigation.id}
+                  onClick={() => navigate(navigation.path)}
+                >
+                  {navigation.route}
+                </NavList.Item>
+              ))}
 
               <NavList.Item onClick={logout}>Logout</NavList.Item>
               <NavList.Item>
@@ -70,9 +55,31 @@ export default function WrapperContainer({
           </NavList>
         )}
         <div
-          className={clsx("p-4", currentUser ? "col-span-10" : "col-span-10")}
+          className={clsx("lg:p-4 col-span-12 lg:col-span-10 mt-12 lg:mt-0")}
         >
           {children}
+        </div>
+
+        <div className="absolute right-2 top-2 lg:hidden">
+          <ActionMenu>
+            <ActionMenu.Button icon={ThreeBarsIcon}>Menu</ActionMenu.Button>
+            <ActionMenu.Overlay width="medium">
+              <ActionList>
+                {SIDE_NAVIGATION.map((navigation) => (
+                  <ActionList.Item
+                    key={navigation.id}
+                    onClick={() => navigate(navigation.path)}
+                  >
+                    {navigation.route}
+                  </ActionList.Item>
+                ))}
+                <ActionList.Divider />
+                <ActionList.Item variant="danger" onClick={logout}>
+                  Logout
+                </ActionList.Item>
+              </ActionList>
+            </ActionMenu.Overlay>
+          </ActionMenu>
         </div>
       </section>
     </>

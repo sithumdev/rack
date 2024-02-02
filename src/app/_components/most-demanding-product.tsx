@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ReportMode } from "../_lib/globals";
 import { BarChartCloud } from ".";
-import { IAnalyticsDemandingProduct, IBarChartCloud } from "./bar-chart";
+import { ReportMode } from "../_lib/globals";
+import { IAnalyticsDemandingProduct } from "./bar-chart";
 
 export default function MostDemandingProduct() {
   const [mode, setMode] = useState<ReportMode>(ReportMode.DAILY);
