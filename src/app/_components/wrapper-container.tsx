@@ -60,27 +60,29 @@ export default function WrapperContainer({
           {children}
         </div>
 
-        <div className="absolute right-2 top-2 lg:hidden">
-          <ActionMenu>
-            <ActionMenu.Button icon={ThreeBarsIcon}>Menu</ActionMenu.Button>
-            <ActionMenu.Overlay width="medium">
-              <ActionList>
-                {SIDE_NAVIGATION.map((navigation) => (
-                  <ActionList.Item
-                    key={navigation.id}
-                    onClick={() => navigate(navigation.path)}
-                  >
-                    {navigation.route}
+        {currentUser && (
+          <div className="absolute right-2 top-2 lg:hidden">
+            <ActionMenu>
+              <ActionMenu.Button icon={ThreeBarsIcon}>Menu</ActionMenu.Button>
+              <ActionMenu.Overlay width="medium">
+                <ActionList>
+                  {SIDE_NAVIGATION.map((navigation) => (
+                    <ActionList.Item
+                      key={navigation.id}
+                      onClick={() => navigate(navigation.path)}
+                    >
+                      {navigation.route}
+                    </ActionList.Item>
+                  ))}
+                  <ActionList.Divider />
+                  <ActionList.Item variant="danger" onClick={logout}>
+                    Logout
                   </ActionList.Item>
-                ))}
-                <ActionList.Divider />
-                <ActionList.Item variant="danger" onClick={logout}>
-                  Logout
-                </ActionList.Item>
-              </ActionList>
-            </ActionMenu.Overlay>
-          </ActionMenu>
-        </div>
+                </ActionList>
+              </ActionMenu.Overlay>
+            </ActionMenu>
+          </div>
+        )}
       </section>
     </>
   );
