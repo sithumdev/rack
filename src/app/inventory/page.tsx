@@ -1,7 +1,7 @@
 import { Spinner } from "@primer/react";
 import { Product } from "@prisma/client";
 import { InventoryTable } from "../_features/inventory";
-import { getProducts } from "../_lib/products";
+import { getAllProducts } from "../_lib/products";
 import { supabaseClientServer } from "../_lib/supabase-server";
 import { getUserByEmail } from "../_lib/users";
 
@@ -20,7 +20,7 @@ async function InventoryIntermediate({
 }
 
 export default async function Inventories() {
-  const { products } = await getProducts();
+  const { products } = await getAllProducts();
 
   const {
     data: { session },

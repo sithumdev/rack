@@ -176,6 +176,7 @@ export default function CreateUpdateProduct({
             <FormControl>
               <FormControl.Label>Category</FormControl.Label>
               <Select
+                defaultValue={String(getDefaultCategory(product, categories))}
                 onChange={(e) => {
                   setValue("categoryId", Number(e.target.value));
                 }}
@@ -197,7 +198,13 @@ export default function CreateUpdateProduct({
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>
-              {loading ? <Spinner size="small" /> : "Create"}
+              {loading ? (
+                <Spinner size="small" />
+              ) : isUpdate ? (
+                "Update"
+              ) : (
+                "Create"
+              )}
             </Button>
           </div>
         </form>

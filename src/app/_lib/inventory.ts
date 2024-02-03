@@ -33,6 +33,8 @@ export async function getInventory(
     });
 
     const formatted: InventoryType[] = inventory.map((inventory) => ({
+      id: inventory.id,
+      productId: inventory.productId,
       name: inventory.product.name,
       available: inventory.available,
       defective: inventory.defective,
@@ -41,7 +43,6 @@ export async function getInventory(
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
-      id: inventory.id,
       barcode: inventory.product.barcode,
     }));
 
@@ -75,6 +76,8 @@ export async function getAllAvailableInventory(): Promise<{
     });
 
     const formatted: InventoryType[] = inventory.map((inventory) => ({
+      id: inventory.id,
+      productId: inventory.productId,
       name: inventory.product.name,
       available: inventory.available,
       defective: inventory.defective,
@@ -83,7 +86,6 @@ export async function getAllAvailableInventory(): Promise<{
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
-      id: inventory.id,
       barcode: inventory.product.barcode,
     }));
 
@@ -110,6 +112,8 @@ export async function getAllInventories(): Promise<{
     });
 
     const formatted: InventoryType[] = inventory.map((inventory) => ({
+      id: inventory.id,
+      productId: inventory.productId,
       name: inventory.product.name,
       available: inventory.available,
       defective: inventory.defective,
@@ -118,7 +122,6 @@ export async function getAllInventories(): Promise<{
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
-      id: inventory.id,
       barcode: inventory.product.barcode,
     }));
 
@@ -145,6 +148,8 @@ export async function getInventoryById(id: number): Promise<{
     });
 
     const formatted: InventoryType = {
+      id: inventory.id,
+      productId: inventory.productId,
       name: inventory.product.name,
       available: inventory.available,
       defective: inventory.defective,
@@ -153,7 +158,6 @@ export async function getInventoryById(id: number): Promise<{
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
-      id: inventory.id,
       barcode: inventory.product.barcode,
     };
 
@@ -201,6 +205,33 @@ export async function createInventory(inventory: any) {
 
     return { inventory: createdInventory };
   } catch (error) {
+    Sentry.captureException(error);
+    return { error };
+  }
+}
+
+export async function updateInventory(inventory: any) {
+  try {
+    const updatedInventory = await prisma.inventory.update({
+      where: {
+        id: inventory.id,
+      },
+      data: {
+        sku: inventory.sku,
+        sold: inventory.sold,
+        defective: inventory.defective,
+        updatedBy: {
+          connect: {
+            id: inventory.updatedBy,
+          },
+        },
+      },
+    });
+
+    return { inventory: updatedInventory };
+  } catch (error) {
+    console.log(error);
+
     Sentry.captureException(error);
     return { error };
   }

@@ -33,10 +33,18 @@ export default function InventoryTable({
 
   const [inventories, setInventories] = useState<InventoryType[]>([]);
 
-  const onDialogClose = useCallback(() => setIsOpen(false), []);
   const onDialogOpen = useCallback(() => setIsOpen(true), []);
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [updatingInventory, setUpdatingInventory] = useState<InventoryType>();
+
+  const onDialogClose = useCallback(() => {
+    setIsOpen(false);
+    setIsUpdate(false);
+    setUpdatingInventory(undefined);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -156,6 +164,24 @@ export default function InventoryTable({
                   return <RelativeTime date={new Date(row.updatedAt)} />;
                 },
               },
+              {
+                header: "Action",
+                field: "updatedAt",
+                renderCell: (row) => {
+                  return (
+                    <Button
+                      variant="invisible"
+                      disabled={currentUser.type === "EMPLOYEE"}
+                      onClick={() => {
+                        setIsUpdate(true);
+                        setUpdatingInventory(row);
+                      }}
+                    >
+                      Update
+                    </Button>
+                  );
+                },
+              },
             ]}
           />
         )}
@@ -169,11 +195,14 @@ export default function InventoryTable({
         />
       </Table.Container>
       <CreateUpdateInventory
-        open={isOpen}
+        key={`${isUpdate}`}
+        open={isOpen || isUpdate}
         onClose={onDialogClose}
         currentUser={currentUser}
         products={products}
         onChangeHandler={() => setChange((prev) => !prev)}
+        isUpdate={isUpdate}
+        inventory={updatingInventory}
       />
     </>
   );

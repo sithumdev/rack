@@ -1,6 +1,7 @@
 "use client";
 
-import { createInventoryAction } from "@/app/actions";
+import { InventoryType } from "@/app/_lib/types";
+import { createInventoryAction, updateInventoryAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -13,12 +14,12 @@ import {
 } from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { Product, User } from "@prisma/client";
+import numeral from "numeral";
 import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CreateInventorySchema, {
   CreateInventorySchemaType,
 } from "./schema/create.schema";
-import numeral from "numeral";
 
 type IInventory = {
   open: boolean;
@@ -26,7 +27,21 @@ type IInventory = {
   onChangeHandler: () => void;
   currentUser: User;
   products: Product[];
+  isUpdate?: boolean;
+  inventory?: InventoryType;
 };
+
+function getDefaultProduct(
+  inventory: InventoryType | undefined,
+  products: Product[]
+) {
+  if (inventory) {
+    return inventory.productId;
+  } else if (products.length > 0) {
+    return products[0].id;
+  }
+  return 0;
+}
 
 export default function CreateUpdateInventory({
   open,
@@ -34,6 +49,8 @@ export default function CreateUpdateInventory({
   onChangeHandler,
   currentUser,
   products,
+  isUpdate,
+  inventory,
 }: IInventory) {
   const returnFocusRef = useRef(null);
 
@@ -49,24 +66,42 @@ export default function CreateUpdateInventory({
     setValue,
   } = useForm<CreateInventorySchemaType>({
     defaultValues: {
-      productId: products.length > 0 ? String(products[0].id) : "0",
-      sellingPrice: products.length > 0 ? String(products[0].price) : "",
+      productId: String(getDefaultProduct(inventory, products)),
+      sellingPrice:
+        inventory?.sellingPrice || products.length > 0
+          ? String(products[0].price)
+          : "",
+      sku: inventory?.sku || "",
+      available: String(inventory?.available) || "",
+      defective: String(inventory?.defective) || "",
+      sold: String(inventory?.sold) || "",
     },
     resolver: zodResolver(CreateInventorySchema),
   });
 
   const onSubmit: SubmitHandler<CreateInventorySchemaType> = async (data) => {
     setLoading(true);
-    await createInventoryAction({
-      ...data,
-      productId: Number(data.productId),
-      sellingPrice: Number(data.sellingPrice),
-      available: Number(data.available),
-      sold: Number(data.sold),
-      defective: Number(data.defective),
-      createdBy: currentUser.id,
-      updatedBy: currentUser.id,
-    });
+    if (isUpdate) {
+      await updateInventoryAction({
+        ...data,
+        id: inventory?.id,
+        available: Number(data.available),
+        sold: Number(data.sold),
+        defective: Number(data.defective),
+        updatedBy: currentUser.id,
+      });
+    } else {
+      await createInventoryAction({
+        ...data,
+        productId: Number(data.productId),
+        sellingPrice: Number(data.sellingPrice),
+        available: Number(data.available),
+        sold: Number(data.sold),
+        defective: Number(data.defective),
+        createdBy: currentUser.id,
+        updatedBy: currentUser.id,
+      });
+    }
     reset();
     onClose();
     onChangeHandler();
@@ -86,9 +121,10 @@ export default function CreateUpdateInventory({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-1 min-w-full">
             <div className="flex flex-col gap-3 p-3">
-              <FormControl>
+              <FormControl disabled={isUpdate}>
                 <FormControl.Label>Product</FormControl.Label>
                 <Select
+                  defaultValue={String(getDefaultProduct(inventory, products))}
                   onChange={(e) => {
                     setValue("productId", e.target.value);
                     const product = products.find(
@@ -134,7 +170,7 @@ export default function CreateUpdateInventory({
                   </Label>
                 </div>
               )}
-              <FormControl id={"sellingPrice"}>
+              <FormControl id={"sellingPrice"} disabled={isUpdate}>
                 <FormControl.Label>Selling Price</FormControl.Label>
                 <TextInput
                   leadingVisual="Rs"
@@ -151,7 +187,7 @@ export default function CreateUpdateInventory({
                 )}
               </FormControl>
 
-              <FormControl id={"available"}>
+              <FormControl id={"available"} disabled={isUpdate}>
                 <FormControl.Label>Available</FormControl.Label>
                 <TextInput
                   type="number"
@@ -207,7 +243,13 @@ export default function CreateUpdateInventory({
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={loading}>
-              {loading ? <Spinner size="small" /> : "Create"}
+              {loading ? (
+                <Spinner size="small" />
+              ) : isUpdate ? (
+                "Update"
+              ) : (
+                "Create"
+              )}
             </Button>
           </div>
         </form>
