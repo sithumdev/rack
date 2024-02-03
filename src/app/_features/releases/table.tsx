@@ -57,34 +57,34 @@ export default function ReleasesTable() {
 
   return (
     <>
-      {loading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <Spinner />
-        </div>
-      ) : (
-        <Table.Container>
-          <Table.Title as="h2" id="repositories">
-            Release Invoices
-          </Table.Title>
-          <Table.Actions>
-            <Button>
-              <Link href="releases/new">Create Release</Link>
-            </Button>
-          </Table.Actions>
-          <Table.Divider />
-          <Table.Subtitle as="p" id="repositories-subtitle">
-            Release invoices managed by the admin
-          </Table.Subtitle>
-          <FormControl id={"query"}>
-            <FormControl.Label visuallyHidden>Search</FormControl.Label>
-            <TextInput
-              type="text"
-              className="w-full"
-              placeholder="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </FormControl>
+      <Table.Container>
+        <Table.Title as="h2" id="repositories">
+          Release Invoices
+        </Table.Title>
+        <Table.Actions>
+          <Button>
+            <Link href="releases/new">Create Release</Link>
+          </Button>
+        </Table.Actions>
+        <Table.Divider />
+        <Table.Subtitle as="p" id="repositories-subtitle">
+          Release invoices managed by the admin
+        </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <Spinner />
+          </div>
+        ) : (
           <DataTable
             aria-labelledby="repositories"
             aria-describedby="repositories-subtitle"
@@ -169,17 +169,16 @@ export default function ReleasesTable() {
               },
             ]}
           />
-          <Table.Pagination
-            pageSize={TABLE_ROW_SIZE}
-            totalCount={total}
-            aria-label="pagination"
-            onChange={(pageIndex) => {
-              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-            }}
-          />
-        </Table.Container>
-      )}
-
+        )}
+        <Table.Pagination
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
+          aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
+        />
+      </Table.Container>
       <Dialog
         returnFocusRef={returnFocusRef}
         isOpen={open}

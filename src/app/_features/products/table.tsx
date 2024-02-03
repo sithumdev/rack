@@ -74,32 +74,34 @@ export default function ProductsTable({
 
   return (
     <>
-      {loading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <Spinner />
-        </div>
-      ) : (
-        <Table.Container>
-          <Table.Title as="h2" id="repositories">
-            Products
-          </Table.Title>
-          <Table.Actions>
-            <Button onClick={onDialogOpen}>Create Product</Button>
-          </Table.Actions>
-          <Table.Divider />
-          <Table.Subtitle as="p" id="repositories-subtitle">
-            Products managed by the admin
-          </Table.Subtitle>
-          <FormControl id={"query"}>
-            <FormControl.Label visuallyHidden>Search</FormControl.Label>
-            <TextInput
-              type="text"
-              className="w-full"
-              placeholder="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </FormControl>
+      <Table.Container>
+        <Table.Title as="h2" id="repositories">
+          Products
+        </Table.Title>
+        <Table.Actions>
+          <Button disabled={loading} onClick={onDialogOpen}>
+            Create Product
+          </Button>
+        </Table.Actions>
+        <Table.Divider />
+        <Table.Subtitle as="p" id="repositories-subtitle">
+          Products managed by the admin
+        </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <Spinner />
+          </div>
+        ) : (
           <DataTable
             aria-labelledby="repositories"
             aria-describedby="repositories-subtitle"
@@ -111,10 +113,10 @@ export default function ProductsTable({
                 rowHeader: true,
               },
               {
-                header: "Barcode",
-                field: "barcode",
+                header: "Price (Rs)",
+                field: "price",
                 renderCell: (row) => {
-                  return <Label>{row.barcode}</Label>;
+                  return <span>{numeral(row.price).format("0,0")}</span>;
                 },
               },
               {
@@ -129,10 +131,10 @@ export default function ProductsTable({
                 },
               },
               {
-                header: "Price (Rs)",
-                field: "price",
+                header: "Barcode",
+                field: "barcode",
                 renderCell: (row) => {
-                  return <span>{numeral(row.price).format("0,0")}</span>;
+                  return <Label>{row.barcode}</Label>;
                 },
               },
               {
@@ -162,16 +164,17 @@ export default function ProductsTable({
               },
             ]}
           />
-          <Table.Pagination
-            pageSize={TABLE_ROW_SIZE}
-            totalCount={total}
-            aria-label="pagination"
-            onChange={(pageIndex) => {
-              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-            }}
-          />
-        </Table.Container>
-      )}
+        )}
+
+        <Table.Pagination
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
+          aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
+        />
+      </Table.Container>
       <CreateUpdateProduct
         key={`${isUpdate}`}
         open={isOpen || isUpdate}

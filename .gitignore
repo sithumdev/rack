@@ -37,5 +37,6 @@ next-env.d.ts
 
 /data
 .env
+.env.prod
 # Sentry Config File
 .sentryclirc

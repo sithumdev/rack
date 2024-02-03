@@ -49,24 +49,24 @@ export default function PurchasesTable() {
 
   return (
     <>
-      {loading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <Spinner />
-        </div>
-      ) : (
-        <Table.Container>
-          <Table.Title as="h2" id="repositories">
-            Purchase Invoices
-          </Table.Title>
-          <Table.Actions>
-            <Button>
-              <Link href="purchases/new">Create Purchase</Link>
-            </Button>
-          </Table.Actions>
-          <Table.Divider />
-          <Table.Subtitle as="p" id="repositories-subtitle">
-            Purchase invoices managed by the admin
-          </Table.Subtitle>
+      <Table.Container>
+        <Table.Title as="h2" id="repositories">
+          Purchase Invoices
+        </Table.Title>
+        <Table.Actions>
+          <Button>
+            <Link href="purchases/new">Create Purchase</Link>
+          </Button>
+        </Table.Actions>
+        <Table.Divider />
+        <Table.Subtitle as="p" id="repositories-subtitle">
+          Purchase invoices managed by the admin
+        </Table.Subtitle>
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <Spinner />
+          </div>
+        ) : (
           <DataTable
             aria-labelledby="repositories"
             aria-describedby="repositories-subtitle"
@@ -121,17 +121,16 @@ export default function PurchasesTable() {
               },
             ]}
           />
-          <Table.Pagination
-            pageSize={TABLE_ROW_SIZE}
-            totalCount={total}
-            aria-label="pagination"
-            onChange={(pageIndex) => {
-              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-            }}
-          />
-        </Table.Container>
-      )}
-
+        )}
+        <Table.Pagination
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
+          aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
+        />
+      </Table.Container>
       <Dialog
         returnFocusRef={returnFocusRef}
         isOpen={open}

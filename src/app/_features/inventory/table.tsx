@@ -66,35 +66,37 @@ export default function InventoryTable({
 
   return (
     <>
-      {loading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <Spinner />
-        </div>
-      ) : (
-        <Table.Container>
-          <Table.Title as="h2" id="repositories">
-            Inventory
-          </Table.Title>
-          {currentUser.type === "MANAGER" ||
-            (currentUser.type === "OWNER" && (
-              <Table.Actions>
-                <Button onClick={onDialogOpen}>Create Inventory</Button>
-              </Table.Actions>
-            ))}
-          <Table.Divider />
-          <Table.Subtitle as="p" id="repositories-subtitle">
-            Inventory managed by the admin
-          </Table.Subtitle>
-          <FormControl id={"query"}>
-            <FormControl.Label visuallyHidden>Search</FormControl.Label>
-            <TextInput
-              type="text"
-              className="w-full"
-              placeholder="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </FormControl>
+      <Table.Container>
+        <Table.Title as="h2" id="repositories">
+          Inventory
+        </Table.Title>
+        {currentUser.type === "MANAGER" ||
+          (currentUser.type === "OWNER" && (
+            <Table.Actions>
+              <Button disabled={loading} onClick={onDialogOpen}>
+                Create Inventory
+              </Button>
+            </Table.Actions>
+          ))}
+        <Table.Divider />
+        <Table.Subtitle as="p" id="repositories-subtitle">
+          Inventory managed by the admin
+        </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <Spinner />
+          </div>
+        ) : (
           <DataTable
             aria-labelledby="repositories"
             aria-describedby="repositories-subtitle"
@@ -156,16 +158,16 @@ export default function InventoryTable({
               },
             ]}
           />
-          <Table.Pagination
-            pageSize={TABLE_ROW_SIZE}
-            totalCount={total}
-            aria-label="pagination"
-            onChange={(pageIndex) => {
-              setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
-            }}
-          />
-        </Table.Container>
-      )}
+        )}
+        <Table.Pagination
+          pageSize={TABLE_ROW_SIZE}
+          totalCount={total}
+          aria-label="pagination"
+          onChange={(pageIndex) => {
+            setPage(pageIndex.pageIndex * TABLE_ROW_SIZE);
+          }}
+        />
+      </Table.Container>
       <CreateUpdateInventory
         open={isOpen}
         onClose={onDialogClose}
