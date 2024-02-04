@@ -2,7 +2,15 @@
 
 import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { PurchaseType } from "@/app/_lib/types";
-import { Button, Dialog, Label, RelativeTime, Spinner } from "@primer/react";
+import {
+  Button,
+  Dialog,
+  FormControl,
+  Label,
+  RelativeTime,
+  Spinner,
+  TextInput,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -62,6 +70,16 @@ export default function PurchasesTable() {
         <Table.Subtitle as="p" id="repositories-subtitle">
           Purchase invoices managed by the admin
         </Table.Subtitle>
+        <FormControl id={"query"}>
+          <FormControl.Label visuallyHidden>Search</FormControl.Label>
+          <TextInput
+            type="text"
+            className="w-full"
+            placeholder="Search by created person"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </FormControl>
         {loading ? (
           <div className="flex items-center justify-center w-full h-full">
             <Spinner />

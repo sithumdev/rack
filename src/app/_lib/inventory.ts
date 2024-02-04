@@ -47,6 +47,8 @@ export async function getInventory(
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
       updatedBy: inventory.updatedBy.name,
+      value: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
+      label: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
     }));
 
     const total = await prisma.inventory.count();
@@ -93,6 +95,8 @@ export async function getAllAvailableInventory(): Promise<{
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
       updatedBy: inventory.updatedBy.name,
+      value: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
+      label: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
     }));
 
     return { inventory: formatted };
@@ -132,6 +136,8 @@ export async function getAllInventories(): Promise<{
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
       updatedBy: inventory.updatedBy.name,
+      value: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
+      label: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
     }));
 
     return { inventory: formatted };
@@ -171,6 +177,8 @@ export async function getInventoryById(id: number): Promise<{
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
       updatedBy: inventory.updatedBy.name,
+      value: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
+      label: `${inventory.product.name} - Rs.${inventory.mrp} - ${inventory.product.weight}g`,
     };
 
     return { inventory: formatted };

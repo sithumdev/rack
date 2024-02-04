@@ -32,12 +32,14 @@ export async function getPurchaseInvoices(
       },
       skip,
       take,
-      // where: {
-      //   name: {
-      //     contains: query,
-      //     mode: "insensitive",
-      //   },
-      // },
+      where: {
+        createdBy: {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      },
       orderBy: {
         updatedAt: "desc",
       },

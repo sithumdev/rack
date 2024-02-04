@@ -4,14 +4,14 @@ import {
   Button,
   FormControl,
   Label,
-  Select,
   TextInput,
 } from "@primer/react";
-import { useFormContext } from "react-hook-form";
-import { CreateReleaseSchemaType } from "./schema/create.schema";
-import { useEffect, useState } from "react";
-import { getDefaultInventory } from "./create-update";
+import { AutoComplete } from "antd";
 import numeral from "numeral";
+import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { getDefaultInventory } from "./create-update";
+import { CreateReleaseSchemaType } from "./schema/create.schema";
 
 type IRelaseItem = {
   index: number;
@@ -57,6 +57,30 @@ export default function ReleaseItem({
         <div className="flex items-end gap-4">
           <FormControl>
             <FormControl.Label>Inventory</FormControl.Label>
+            <AutoComplete
+              style={{ width: 450 }}
+              options={inventories}
+              placeholder="Search product"
+              filterOption={(inputValue, option) =>
+                option!.name.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+                -1
+              }
+              onSelect={(_, option) => {
+                setValue(`items.${index}.inventoryId`, String(option.id));
+
+                setSelectedInventory(option);
+
+                setValue(`items.${index}.name`, option.name);
+
+                setValue(`items.${index}.mrp`, String(option.mrp));
+
+                setValue(`items.${index}.available`, option.available);
+              }}
+            />
+          </FormControl>
+
+          {/* <FormControl>
+            <FormControl.Label>Inventory</FormControl.Label>
             <Select
               onChange={(e) => {
                 setValue(`items.${index}.inventoryId`, e.target.value);
@@ -86,7 +110,7 @@ export default function ReleaseItem({
                 </Select.Option>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
 
           <Label variant="attention">
             Available: {numeral(selectedInventory?.available).format("0,0")}
