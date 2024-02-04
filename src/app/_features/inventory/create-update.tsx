@@ -8,12 +8,12 @@ import {
   Dialog,
   FormControl,
   Label,
-  Select,
   Spinner,
   TextInput,
 } from "@primer/react";
 import { Table } from "@primer/react/drafts";
 import { Product, User } from "@prisma/client";
+import { AutoComplete } from "antd";
 import numeral from "numeral";
 import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -120,10 +120,26 @@ export default function CreateUpdateInventory({
         <Dialog.Header id="header">Create Inventory</Dialog.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-1 min-w-full">
-            <div className="flex flex-col gap-3 p-3">
+            <div className="col-span-2 p-3">
               <FormControl disabled={isUpdate}>
                 <FormControl.Label>Product</FormControl.Label>
-                <Select
+                <AutoComplete
+                  style={{ width: "100%" }}
+                  options={products}
+                  placeholder="Search product"
+                  filterOption={(inputValue, option) =>
+                    option!.name
+                      .toUpperCase()
+                      .indexOf(inputValue.toUpperCase()) !== -1
+                  }
+                  onSelect={(_, option) => {
+                    setValue("productId", String(option.id));
+                    setSelectedProduct(option);
+                    setValue("sellingPrice", String(option));
+                  }}
+                />
+
+                {/* <Select
                   defaultValue={String(getDefaultProduct(inventory, products))}
                   onChange={(e) => {
                     setValue("productId", e.target.value);
@@ -142,9 +158,11 @@ export default function CreateUpdateInventory({
                       {product.name}
                     </Select.Option>
                   ))}
-                </Select>
+                </Select> */}
               </FormControl>
+            </div>
 
+            <div className="flex flex-col gap-3 p-3">
               <FormControl id={"sku"}>
                 <FormControl.Label>SKU</FormControl.Label>
                 <TextInput
