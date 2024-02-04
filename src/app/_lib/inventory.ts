@@ -16,6 +16,7 @@ export async function getInventory(
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       where: {
         product: {
@@ -39,11 +40,13 @@ export async function getInventory(
       available: inventory.available,
       defective: inventory.defective,
       sku: inventory.sku,
+      weight: inventory.product.weight,
       sellingPrice: inventory.sellingPrice,
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     const total = await prisma.inventory.count();
@@ -64,6 +67,7 @@ export async function getAllAvailableInventory(): Promise<{
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       where: {
         available: {
@@ -82,11 +86,13 @@ export async function getAllAvailableInventory(): Promise<{
       available: inventory.available,
       defective: inventory.defective,
       sku: inventory.sku,
+      weight: inventory.product.weight,
       sellingPrice: inventory.sellingPrice,
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     return { inventory: formatted };
@@ -105,6 +111,7 @@ export async function getAllInventories(): Promise<{
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       orderBy: {
         updatedAt: "desc",
@@ -118,11 +125,13 @@ export async function getAllInventories(): Promise<{
       available: inventory.available,
       defective: inventory.defective,
       sku: inventory.sku,
+      weight: inventory.product.weight,
       sellingPrice: inventory.sellingPrice,
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     return { inventory: formatted };
@@ -144,6 +153,7 @@ export async function getInventoryById(id: number): Promise<{
       },
       include: {
         product: true,
+        updatedBy: true,
       },
     });
 
@@ -154,11 +164,13 @@ export async function getInventoryById(id: number): Promise<{
       available: inventory.available,
       defective: inventory.defective,
       sku: inventory.sku,
+      weight: inventory.product.weight,
       sellingPrice: inventory.sellingPrice,
       mrp: inventory.mrp,
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     };
 
     return { inventory: formatted };

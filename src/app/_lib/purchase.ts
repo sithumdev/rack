@@ -111,6 +111,11 @@ export async function createPurchaseInvoice(invoice: any) {
           },
           data: {
             available: item.inventory.available + item.quantity,
+            updatedBy: {
+              connect: {
+                id: invoice.updatedBy,
+              },
+            },
           },
         });
       })
