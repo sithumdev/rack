@@ -8,6 +8,7 @@ export type InventoryType = {
   available: number;
   defective: number;
   sku: string;
+  weight: number;
   sold: number;
   updatedAt: Date;
 };
