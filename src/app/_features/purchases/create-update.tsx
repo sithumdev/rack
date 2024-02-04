@@ -21,6 +21,7 @@ import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import CreatePurchaseSchema, {
   CreatePurchaseSchemaType,
 } from "./schema/create.schema";
+import { AutoComplete } from "antd";
 
 function getDefaultInventory(inventories: InventoryType[]) {
   return inventories.length > 0 ? inventories[0] : null;
@@ -103,7 +104,27 @@ export default function CreateUpdatePurchase({
                   <div className="flex items-end gap-4">
                     <FormControl>
                       <FormControl.Label>Inventory</FormControl.Label>
-                      <Select
+                      <AutoComplete
+                        style={{ width: 450 }}
+                        options={inventories}
+                        placeholder="Search product"
+                        filterOption={(inputValue, option) =>
+                          option!.name
+                            .toUpperCase()
+                            .indexOf(inputValue.toUpperCase()) !== -1
+                        }
+                        onSelect={(_, option) => {
+                          setValue(
+                            `items.${index}.inventoryId`,
+                            String(option.id)
+                          );
+
+                          setValue(`items.${index}.name`, option.name);
+
+                          setValue(`items.${index}.mrp`, String(option.mrp));
+                        }}
+                      />
+                      {/* <Select
                         onChange={(e) => {
                           setValue(
                             `items.${index}.inventoryId`,
@@ -137,7 +158,7 @@ export default function CreateUpdatePurchase({
                             {inventory.name} - {inventory.mrp}
                           </Select.Option>
                         ))}
-                      </Select>
+                      </Select> */}
                     </FormControl>
 
                     <FormControl id={"quantity"}>

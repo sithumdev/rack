@@ -10,6 +10,8 @@ export type InventoryType = {
   sku: string;
   sold: number;
   updatedAt: Date;
+  value: string; // used to antd autocomplete requires a value field
+  label: string; // used to antd autocomplete requires a label field
 };
 
 export type PurchaseItemType = {
