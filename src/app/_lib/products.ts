@@ -41,7 +41,15 @@ export async function getAllProducts(): Promise<{
   try {
     const products = await prisma.product.findMany();
 
-    return { products };
+    const formatted = await Promise.all(
+      products.map((product) => ({
+        ...product,
+        value: `${product.name} - Rs.${product.price} - ${product.weight}g`,
+        label: `${product.name} - Rs.${product.price} - ${product.weight}g`,
+      }))
+    );
+
+    return { products: formatted };
   } catch (error) {
     return { error };
   }
