@@ -9,19 +9,18 @@ import {
   Dialog,
   FormControl,
   Label,
-  Select,
   Spinner,
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
+import { AutoComplete } from "antd";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import CreatePurchaseSchema, {
   CreatePurchaseSchemaType,
 } from "./schema/create.schema";
-import { AutoComplete } from "antd";
 
 function getDefaultInventory(inventories: InventoryType[]) {
   return inventories.length > 0 ? inventories[0] : null;
@@ -98,101 +97,64 @@ export default function CreateUpdatePurchase({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 p-3">
           {fields.map((field, index) => (
-            <>
-              <ActionList showDividers>
-                <ActionList.Item>
-                  <div className="flex items-end gap-4">
-                    <FormControl>
-                      <FormControl.Label>Inventory</FormControl.Label>
-                      <AutoComplete
-                        style={{ width: 450 }}
-                        options={inventories}
-                        placeholder="Search product"
-                        filterOption={(inputValue, option) =>
-                          option!.name
-                            .toUpperCase()
-                            .indexOf(inputValue.toUpperCase()) !== -1
-                        }
-                        onSelect={(_, option) => {
-                          setValue(
-                            `items.${index}.inventoryId`,
-                            String(option.id)
-                          );
+            <ActionList showDividers key={index}>
+              <ActionList.Item>
+                <div className="flex items-end gap-4">
+                  <FormControl>
+                    <FormControl.Label>Inventory</FormControl.Label>
+                    <AutoComplete
+                      style={{ width: 450 }}
+                      options={inventories}
+                      placeholder="Search product"
+                      filterOption={(inputValue, option) =>
+                        option!.name
+                          .toUpperCase()
+                          .indexOf(inputValue.toUpperCase()) !== -1
+                      }
+                      onSelect={(_, option) => {
+                        setValue(
+                          `items.${index}.inventoryId`,
+                          String(option.id)
+                        );
 
-                          setValue(`items.${index}.name`, option.name);
+                        setValue(`items.${index}.name`, option.name);
 
-                          setValue(`items.${index}.mrp`, String(option.mrp));
-                        }}
-                      />
-                      {/* <Select
-                        onChange={(e) => {
-                          setValue(
-                            `items.${index}.inventoryId`,
-                            e.target.value
-                          );
-
-                          setValue(
-                            `items.${index}.name`,
-                            inventories.find(
-                              (inventory) =>
-                                inventory.id === Number(e.target.value)
-                            )?.name || ""
-                          );
-
-                          setValue(
-                            `items.${index}.mrp`,
-                            String(
-                              inventories.find(
-                                (inventory) =>
-                                  inventory.id === Number(e.target.value)
-                              )?.mrp
-                            ) || ""
-                          );
-                        }}
-                      >
-                        {inventories.map((inventory) => (
-                          <Select.Option
-                            key={inventory.id}
-                            value={inventory.id.toString()}
-                          >
-                            {inventory.name} - {inventory.mrp}
-                          </Select.Option>
-                        ))}
-                      </Select> */}
-                    </FormControl>
-
-                    <FormControl id={"quantity"}>
-                      <FormControl.Label>Quantity</FormControl.Label>
-                      <TextInput
-                        type="number"
-                        className="w-full"
-                        placeholder="Quantity"
-                        {...register(`items.${index}.quantity`)}
-                        validationStatus={
-                          errors.items &&
-                          errors?.items[index]?.quantity &&
-                          "error"
-                        }
-                      />
-                      {errors.items && errors?.items[index]?.quantity && (
-                        <FormControl.Validation variant="error">
-                          Quantity is required
-                        </FormControl.Validation>
-                      )}
-                    </FormControl>
-
-                    <Button
-                      onClick={() => {
-                        setOpen(true);
-                        setRemovingIndex(index);
+                        setValue(`items.${index}.mrp`, String(option.mrp));
                       }}
-                    >
-                      X
-                    </Button>
-                  </div>
-                </ActionList.Item>
-              </ActionList>
-            </>
+                    />
+                  </FormControl>
+
+                  <FormControl id={"quantity"}>
+                    <FormControl.Label>Quantity</FormControl.Label>
+                    <TextInput
+                      type="number"
+                      className="w-full"
+                      placeholder="Quantity"
+                      {...register(`items.${index}.quantity`)}
+                      validationStatus={
+                        errors.items &&
+                        errors?.items[index]?.quantity &&
+                        "error"
+                      }
+                    />
+                    {errors.items && errors?.items[index]?.quantity && (
+                      <FormControl.Validation variant="error">
+                        Quantity is required
+                      </FormControl.Validation>
+                    )}
+                  </FormControl>
+
+                  <Button
+                    onClick={() => {
+                      setOpen(true);
+                      setRemovingIndex(index);
+                    }}
+                  >
+                    X
+                  </Button>
+                </div>
+              </ActionList.Item>
+            </ActionList>
           ))}
           <div className="flex justify-end">
             <Button

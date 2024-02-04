@@ -75,7 +75,7 @@ export default function ReleasesTable() {
           <TextInput
             type="text"
             className="w-full"
-            placeholder="Search"
+            placeholder="Search by sales rep"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

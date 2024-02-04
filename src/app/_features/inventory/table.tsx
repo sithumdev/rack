@@ -131,7 +131,7 @@ export default function InventoryTable({
               },
               {
                 header: "Barcode",
-                field: "defective",
+                field: "barcode",
                 renderCell: (row) => {
                   return <Label>{row.barcode}</Label>;
                 },
@@ -173,7 +173,7 @@ export default function InventoryTable({
               },
               {
                 header: "Action",
-                field: "updatedAt",
+                field: "defective",
                 renderCell: (row) => {
                   return (
                     <Button
