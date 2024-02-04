@@ -8,8 +8,10 @@ export type InventoryType = {
   available: number;
   defective: number;
   sku: string;
+  weight: number;
   sold: number;
   updatedAt: Date;
+  updatedBy: string;
   value: string; // used to antd autocomplete requires a value field
   label: string; // used to antd autocomplete requires a label field
 };

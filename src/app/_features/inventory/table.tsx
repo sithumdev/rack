@@ -123,9 +123,11 @@ export default function InventoryTable({
                 },
               },
               {
-                header: "SKU",
+                header: "Weight (g)",
                 field: "sku",
-                rowHeader: true,
+                renderCell: (row) => {
+                  return <span>{numeral(row.weight).format("0,0")}</span>;
+                },
               },
               {
                 header: "Barcode",
@@ -163,6 +165,11 @@ export default function InventoryTable({
                 renderCell: (row) => {
                   return <RelativeTime date={new Date(row.updatedAt)} />;
                 },
+              },
+              {
+                header: "Last Update By",
+                field: "updatedBy",
+                rowHeader: true,
               },
               {
                 header: "Action",
