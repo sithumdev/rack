@@ -16,6 +16,7 @@ export async function getInventory(
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       where: {
         product: {
@@ -45,6 +46,7 @@ export async function getInventory(
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     const total = await prisma.inventory.count();
@@ -65,6 +67,7 @@ export async function getAllAvailableInventory(): Promise<{
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       where: {
         available: {
@@ -89,6 +92,7 @@ export async function getAllAvailableInventory(): Promise<{
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     return { inventory: formatted };
@@ -107,6 +111,7 @@ export async function getAllInventories(): Promise<{
     const inventory = await prisma.inventory.findMany({
       include: {
         product: true,
+        updatedBy: true,
       },
       orderBy: {
         updatedAt: "desc",
@@ -126,6 +131,7 @@ export async function getAllInventories(): Promise<{
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     }));
 
     return { inventory: formatted };
@@ -147,6 +153,7 @@ export async function getInventoryById(id: number): Promise<{
       },
       include: {
         product: true,
+        updatedBy: true,
       },
     });
 
@@ -163,6 +170,7 @@ export async function getInventoryById(id: number): Promise<{
       sold: inventory.sold,
       updatedAt: inventory.updatedAt,
       barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
     };
 
     return { inventory: formatted };

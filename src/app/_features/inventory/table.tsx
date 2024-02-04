@@ -167,6 +167,11 @@ export default function InventoryTable({
                 },
               },
               {
+                header: "Last Update By",
+                field: "updatedBy",
+                rowHeader: true,
+              },
+              {
                 header: "Action",
                 field: "updatedAt",
                 renderCell: (row) => {

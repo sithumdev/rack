@@ -11,6 +11,7 @@ export type InventoryType = {
   weight: number;
   sold: number;
   updatedAt: Date;
+  updatedBy: string;
 };
 
 export type PurchaseItemType = {
