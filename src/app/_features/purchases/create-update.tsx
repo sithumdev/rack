@@ -14,7 +14,7 @@ import {
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
-import { AutoComplete } from "antd";
+import { AutoComplete, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -207,48 +207,25 @@ export default function CreateUpdatePurchase({
         </div>
       </Dialog>
 
-      <Dialog
-        returnFocusRef={returnFocusRef}
-        isOpen={openReview}
-        onDismiss={() => setOpenReview(false)}
-        aria-labelledby="header"
-      >
-        <div data-testid="inner">
-          <Dialog.Header id="header">Peview Purchase Order</Dialog.Header>
-          <DataTable
-            aria-labelledby="repositories"
-            aria-describedby="repositories-subtitle"
-            data={values.map((value, index) => ({
-              ...value,
-              id: index,
-            }))}
-            columns={[
-              {
-                header: "Name",
-                field: "name",
-                rowHeader: true,
-              },
-              {
-                header: "Max Retail Price",
-                field: "mrp",
-                rowHeader: true,
-              },
-              {
-                header: "Quantity",
-                field: "quantity",
-                renderCell: (row) => {
-                  return <Label>{row.quantity}</Label>;
-                },
-              },
-            ]}
-          />
-          <Table.Divider />
-          <div className="flex items-center gap-2 justify-end p-2">
-            <Button variant="invisible" onClick={() => setOpenReview(false)}>
+      <Modal
+        title="Peview Purchase Order"
+        open={openReview}
+        onOk={() => {
+          setOpenReview(false);
+          create();
+        }}
+        onCancel={() => setOpenReview(false)}
+        footer={[
+          <div key={1} className="flex items-center justify-end gap-3">
+            <Button
+              key={1}
+              variant="invisible"
+              onClick={() => setOpenReview(false)}
+            >
               Cancel
             </Button>
-
             <Button
+              key={2}
               variant="primary"
               disabled={loading}
               onClick={() => {
@@ -258,9 +235,37 @@ export default function CreateUpdatePurchase({
             >
               {loading ? <Spinner size="small" /> : "Create"}
             </Button>
-          </div>
-        </div>
-      </Dialog>
+          </div>,
+        ]}
+      >
+        <DataTable
+          aria-labelledby="repositories"
+          aria-describedby="repositories-subtitle"
+          data={values.map((value, index) => ({
+            ...value,
+            id: index,
+          }))}
+          columns={[
+            {
+              header: "Name",
+              field: "name",
+              rowHeader: true,
+            },
+            {
+              header: "Max Retail Price",
+              field: "mrp",
+              rowHeader: true,
+            },
+            {
+              header: "Quantity",
+              field: "quantity",
+              renderCell: (row) => {
+                return <Label>{row.quantity}</Label>;
+              },
+            },
+          ]}
+        />
+      </Modal>
     </>
   );
 }

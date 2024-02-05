@@ -3,6 +3,7 @@
 import { InventoryType } from "@/app/_lib/types";
 import { createReleaseInvoiceAction } from "@/app/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertIcon } from "@primer/octicons-react";
 import {
   Button,
   Dialog,
@@ -14,7 +15,9 @@ import {
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
 import { User } from "@prisma/client";
+import { Modal } from "antd";
 import { useRouter } from "next/navigation";
+import numeral from "numeral";
 import { useRef, useState } from "react";
 import {
   FormProvider,
@@ -26,8 +29,6 @@ import ReleaseItem from "./release-item";
 import CreateReleaseSchema, {
   CreateReleaseSchemaType,
 } from "./schema/create.schema";
-import numeral from "numeral";
-import { AlertIcon } from "@primer/octicons-react";
 
 export function getDefaultInventory(inventories: InventoryType[]) {
   return inventories.length > 0 ? inventories[0] : null;
@@ -216,76 +217,16 @@ export default function CreateUpdateRelease({
         </div>
       </Dialog>
 
-      <Dialog
-        returnFocusRef={returnFocusRef}
-        isOpen={openReview}
-        onDismiss={() => setOpenReview(false)}
-        aria-labelledby="header"
-      >
-        <div data-testid="inner">
-          <Dialog.Header id="header">Preview Release Order</Dialog.Header>
-          <div className="flex px-2 py-4 items-center gap-2 text-xs">
-            Issuing to <Label variant="accent">{values.whom}</Label>
-          </div>
-          <Table.Divider />
-          <DataTable
-            aria-labelledby="repositories"
-            aria-describedby="repositories-subtitle"
-            data={values.items.map((value, index) => ({
-              ...value,
-              id: index,
-            }))}
-            columns={[
-              {
-                header: "Name",
-                field: "name",
-                rowHeader: true,
-              },
-              {
-                header: "Max Retail Price",
-                field: "mrp",
-                rowHeader: true,
-              },
-              {
-                header: "Available",
-                field: "available",
-                renderCell: (row) => {
-                  return (
-                    <Label variant="attention">
-                      {numeral(row.available).format("0,0")}
-                    </Label>
-                  );
-                },
-              },
-              {
-                header: "Quantity",
-                field: "quantity",
-                renderCell: (row) => {
-                  return (
-                    <div className="flex items-center justify-between w-full">
-                      <Label>{numeral(row.quantity).format("0,0")}</Label>
-                      {getDuplicateEntries(values).size > 0 &&
-                        getDuplicateEntries(values).has(
-                          String(row.inventoryId)
-                        ) && (
-                          <Octicon color="#ffbf00" icon={AlertIcon} size={12} />
-                        )}
-                    </div>
-                  );
-                },
-              },
-            ]}
-          />
-          <Table.Divider />
-          {hasDuplicateEntries(values) && (
-            <div className="my-1 flex justify-end px-2">
-              <p className="text-xs text-red-500">
-                There are duplicate entries. Please resolve them first.
-              </p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 justify-end p-2 mt-2">
+      <Modal
+        title="Peview Release Order"
+        open={openReview}
+        onOk={() => {
+          setOpenReview(false);
+          create();
+        }}
+        onCancel={() => setOpenReview(false)}
+        footer={[
+          <div key={1} className="flex items-center gap-3 justify-end">
             <Button variant="invisible" onClick={() => setOpenReview(false)}>
               Cancel
             </Button>
@@ -305,9 +246,61 @@ export default function CreateUpdateRelease({
             >
               {loading ? <Spinner size="small" /> : "Create"}
             </Button>
-          </div>
+          </div>,
+        ]}
+      >
+        <div className="flex px-2 py-4 items-center gap-2 text-xs">
+          Issuing to <Label variant="accent">{values.whom}</Label>
         </div>
-      </Dialog>
+        <DataTable
+          aria-labelledby="repositories"
+          aria-describedby="repositories-subtitle"
+          data={values.items.map((value, index) => ({
+            ...value,
+            id: index,
+          }))}
+          columns={[
+            {
+              header: "Name",
+              field: "name",
+              rowHeader: true,
+            },
+            {
+              header: "Max Retail Price",
+              field: "mrp",
+              rowHeader: true,
+            },
+            {
+              header: "Available",
+              field: "available",
+              renderCell: (row) => {
+                return (
+                  <Label variant="attention">
+                    {numeral(row.available).format("0,0")}
+                  </Label>
+                );
+              },
+            },
+            {
+              header: "Quantity",
+              field: "quantity",
+              renderCell: (row) => {
+                return (
+                  <div className="flex items-center justify-between w-full">
+                    <Label>{numeral(row.quantity).format("0,0")}</Label>
+                    {getDuplicateEntries(values).size > 0 &&
+                      getDuplicateEntries(values).has(
+                        String(row.inventoryId)
+                      ) && (
+                        <Octicon color="#ffbf00" icon={AlertIcon} size={12} />
+                      )}
+                  </div>
+                );
+              },
+            },
+          ]}
+        />
+      </Modal>
     </>
   );
 }
