@@ -5,6 +5,7 @@ import prisma from "./prisma";
 import { createProductReporting } from "./product-reporting";
 import { ReleaseType } from "./types";
 import * as Sentry from "@sentry/nextjs";
+import { diff } from "deep-diff";
 
 export async function getReleaseInvoices(
   query: string = "",
@@ -112,6 +113,13 @@ export async function createReleaseInvoice(invoice: any) {
 
     await Promise.all(
       createdPurchaseInvoice.releases.map(async (item) => {
+        const foundInventory = await prisma.inventory.findUniqueOrThrow({
+          where: {
+            id: item.inventoryId,
+          },
+          include: { product: true },
+        });
+
         const updatedInventory = await prisma.inventory.update({
           where: {
             id: item.inventoryId,
@@ -137,9 +145,12 @@ export async function createReleaseInvoice(invoice: any) {
 
         await auditInventory(
           {
-            inventory: updatedInventory,
+            inventory: foundInventory,
             createdById: invoice.updatedBy,
             createdByName: foundUser.name,
+            difference: diff(foundInventory, updatedInventory)?.filter(
+              (change) => change.kind === "E"
+            ),
           },
           AUDIT_ACTION.UPDATE
         );

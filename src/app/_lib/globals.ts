@@ -61,7 +61,7 @@ export const SIDE_NAVIGATION: ISideNavigation[] = [
   },
   {
     id: 9,
-    path: "audit/inventory",
+    path: "audit",
     route: "Audit",
   },
 ];

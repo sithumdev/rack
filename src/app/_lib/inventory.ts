@@ -239,6 +239,7 @@ export async function createInventory(inventory: any) {
         inventory: createdInventory,
         createdById: inventory.createdBy,
         createdByName: foundUser.name,
+        difference: [],
       },
       AUDIT_ACTION.CREATE
     );
@@ -252,6 +253,13 @@ export async function createInventory(inventory: any) {
 
 export async function updateInventory(inventory: any) {
   try {
+    const foundInventory = await prisma.inventory.findUniqueOrThrow({
+      where: {
+        id: inventory.id,
+      },
+      include: { product: true },
+    });
+
     const updatedInventory = await prisma.inventory.update({
       where: {
         id: inventory.id,
@@ -266,7 +274,6 @@ export async function updateInventory(inventory: any) {
           },
         },
       },
-      include: { product: true },
     });
 
     const foundUser = await prisma.user.findUniqueOrThrow({
@@ -275,14 +282,14 @@ export async function updateInventory(inventory: any) {
       },
     });
 
-    await auditInventory(
-      {
-        inventory: updatedInventory,
-        createdById: inventory.updatedBy,
-        createdByName: foundUser.name,
-      },
-      AUDIT_ACTION.UPDATE
-    );
+    // await auditInventory(
+    //   {
+    //     inventory: updatedInventory,
+    //     createdById: inventory.updatedBy,
+    //     createdByName: foundUser.name,
+    //   },
+    //   AUDIT_ACTION.UPDATE
+    // );
 
     return { inventory: updatedInventory };
   } catch (error) {

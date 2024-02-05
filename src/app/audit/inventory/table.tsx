@@ -1,12 +1,13 @@
 "use client";
 
 import { getAntDesignTagColor } from "@/app/_lib/utilities";
-import { AUDIT_ACTION, InventoryAudit } from "@prisma/client";
-import { Descriptions, Table, TableProps, Tag } from "antd";
+import { AuditDifference, InventoryAudit } from "@prisma/client";
+import { Descriptions, Table, TableProps, Tag, Timeline } from "antd";
 import moment from "moment";
 
 export interface TableCellType extends InventoryAudit {
   key: string;
+  differences: AuditDifference[];
 }
 
 type IAuditInventoryTable = {
@@ -50,25 +51,19 @@ export default function AuditInventoryTable({ data }: IAuditInventoryTable) {
       dataSource={data}
       expandable={{
         expandedRowRender: (record) => (
-          <Descriptions title={record.productName}>
-            <Descriptions.Item label="Max Retail Price">
-              {record.mrp}
-            </Descriptions.Item>
-            <Descriptions.Item label="SKU">{record.sku}</Descriptions.Item>
-            <Descriptions.Item label="Available">
-              {record.available}
-            </Descriptions.Item>
-            <Descriptions.Item label="Defective">
-              {record.defective}
-            </Descriptions.Item>
-            <Descriptions.Item label="Sold">{record.sold}</Descriptions.Item>
-            <Descriptions.Item label="Created At">
-              {moment(record.createdAt).format("YYYY-MM-DD hh:mm:ss a")}
-            </Descriptions.Item>
-            <Descriptions.Item label="Updated At">
-              {moment(record.updatedAt).format("YYYY-MM-DD hh:mm:ss a")}
-            </Descriptions.Item>
-          </Descriptions>
+          <>
+            <Descriptions title={record.productName}>
+              <Descriptions.Item label="Max Retail Price">
+                {record.mrp}
+              </Descriptions.Item>
+            </Descriptions>
+            <Timeline
+              className="mt-2"
+              items={record.differences.map((difference) => ({
+                children: `field ${difference.path} updated to ${difference.rhs} from ${difference.lhs}`,
+              }))}
+            />
+          </>
         ),
       }}
     />

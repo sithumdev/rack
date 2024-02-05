@@ -1,11 +1,11 @@
 import { getAllInventoryAudits } from "@/app/_lib/audit/inventory.audit";
-import { Spinner } from "@primer/react";
+import { Empty } from "antd";
 import AuditInventoryTable from "./table";
 
 export default async function InventoryAudits() {
   const { audits } = await getAllInventoryAudits();
 
-  if (audits) {
+  if (audits && audits.length > 0) {
     return (
       <AuditInventoryTable
         data={audits.map((audit) => ({
@@ -16,5 +16,5 @@ export default async function InventoryAudits() {
     );
   }
 
-  return <Spinner />;
+  return <Empty />;
 }

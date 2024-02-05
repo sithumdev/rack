@@ -8,6 +8,9 @@ export async function getAllInventoryAudits() {
       orderBy: {
         performedAt: "desc",
       },
+      include: {
+        differences: true,
+      },
     });
 
     return { audits };
@@ -19,25 +22,24 @@ export async function getAllInventoryAudits() {
 }
 
 export async function auditInventory(audit: any, action: AUDIT_ACTION) {
-  console.log("AUDITING ", audit);
-  console.log("AUDITING ", action);
-
   try {
     const createdAuditInventory = await prisma.inventoryAudit.create({
       data: {
         action,
         performedById: audit.createdById,
         performedBy: audit.createdByName,
-        available: audit.inventory.available,
-        defective: audit.inventory.defective,
         mrp: audit.inventory.mrp,
-        sellingPrice: audit.inventory.sellingPrice,
-        sku: audit.inventory.sku,
-        sold: audit.inventory.sold,
-        updatedAt: audit.inventory.updatedAt,
-        createdAt: audit.inventory.createdAt,
         inventoryId: audit.inventory.id,
         productName: audit.inventory.product.name,
+        differences: {
+          createMany: {
+            data: audit.difference.map((difference: any) => ({
+              lhs: String(difference.lhs),
+              rhs: String(difference.rhs),
+              path: difference.path[0],
+            })),
+          },
+        },
       },
     });
 

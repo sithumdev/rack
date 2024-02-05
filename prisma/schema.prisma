@@ -177,11 +177,14 @@ model InventoryAudit {
   inventoryId  Int
   productName  String
   mrp          Int
-  sellingPrice Int
-  sku          String
-  available    Int
-  sold         Int
-  defective    Int
-  createdAt    DateTime
-  updatedAt    DateTime
+  differences   AuditDifference[] @relation("AuditDifferences")
+}
+
+model AuditDifference {
+  id            Int      @id @default(autoincrement())
+  lhs           String
+  rhs           String
+  path          String
+  auditId        Int
+  audit   InventoryAudit     @relation("AuditDifferences", fields: [auditId], references: [id])
 }
