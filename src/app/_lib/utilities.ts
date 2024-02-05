@@ -1,4 +1,4 @@
-import { USER_TYPE } from "@prisma/client";
+import { AUDIT_ACTION, USER_TYPE } from "@prisma/client";
 import { ReportMode } from "./globals";
 
 export function getPermissionByName(name: string) {
@@ -28,5 +28,18 @@ export function getReportModeByName(name: string) {
       return ReportMode.YEARLY;
     default:
       throw Error("Mode not defined");
+  }
+}
+
+export function getAntDesignTagColor(action: AUDIT_ACTION): string {
+  switch (action) {
+    case "CREATE":
+      return "geekblue";
+    case "UPDATE":
+      return "gold";
+    case "DELETE":
+      return "error";
+    default:
+      throw new Error("Invalid action");
   }
 }

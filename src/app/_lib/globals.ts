@@ -59,4 +59,9 @@ export const SIDE_NAVIGATION: ISideNavigation[] = [
     path: "downloads",
     route: "Downloads",
   },
+  {
+    id: 9,
+    path: "audit/inventory",
+    route: "Audit",
+  },
 ];

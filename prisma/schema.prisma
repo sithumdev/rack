@@ -158,3 +158,30 @@ enum USER_TYPE {
   EMPLOYEE
   SUPPLIER
 }
+
+enum AUDIT_ACTION {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+// Inventory Audit
+model InventoryAudit {
+  id            Int      @id @default(autoincrement())
+  action        AUDIT_ACTION
+  performedById Int
+  performedBy   String
+  performedAt   DateTime @default(now()) @db.Timestamp(6)
+
+
+  inventoryId  Int
+  productName  String
+  mrp          Int
+  sellingPrice Int
+  sku          String
+  available    Int
+  sold         Int
+  defective    Int
+  createdAt    DateTime
+  updatedAt    DateTime
+}

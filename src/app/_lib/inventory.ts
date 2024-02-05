@@ -1,7 +1,9 @@
+import { AUDIT_ACTION } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { auditInventory } from "./audit/inventory.audit";
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { InventoryType } from "./types";
-import * as Sentry from "@sentry/nextjs";
 
 export async function getInventory(
   query: string = "",
@@ -56,7 +58,7 @@ export async function getInventory(
     return { inventory: formatted, total };
   } catch (error) {
     console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }
@@ -143,7 +145,7 @@ export async function getAllInventories(): Promise<{
     return { inventory: formatted };
   } catch (error) {
     console.log(error);
-
+    Sentry.captureException(error);
     return { error };
   }
 }
@@ -221,7 +223,25 @@ export async function createInventory(inventory: any) {
           },
         },
       },
+      include: {
+        product: true,
+      },
     });
+
+    const foundUser = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: inventory.createdBy,
+      },
+    });
+
+    await auditInventory(
+      {
+        inventory: createdInventory,
+        createdById: inventory.createdBy,
+        createdByName: foundUser.name,
+      },
+      AUDIT_ACTION.CREATE
+    );
 
     return { inventory: createdInventory };
   } catch (error) {
@@ -246,7 +266,23 @@ export async function updateInventory(inventory: any) {
           },
         },
       },
+      include: { product: true },
     });
+
+    const foundUser = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: inventory.updatedBy,
+      },
+    });
+
+    await auditInventory(
+      {
+        inventory: updatedInventory,
+        createdById: inventory.updatedBy,
+        createdByName: foundUser.name,
+      },
+      AUDIT_ACTION.UPDATE
+    );
 
     return { inventory: updatedInventory };
   } catch (error) {

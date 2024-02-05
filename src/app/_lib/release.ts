@@ -1,3 +1,5 @@
+import { AUDIT_ACTION } from "@prisma/client";
+import { auditInventory } from "./audit/inventory.audit";
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { createProductReporting } from "./product-reporting";
@@ -110,7 +112,7 @@ export async function createReleaseInvoice(invoice: any) {
 
     await Promise.all(
       createdPurchaseInvoice.releases.map(async (item) => {
-        await prisma.inventory.update({
+        const updatedInventory = await prisma.inventory.update({
           where: {
             id: item.inventoryId,
           },
@@ -122,7 +124,25 @@ export async function createReleaseInvoice(invoice: any) {
               },
             },
           },
+          include: {
+            product: true,
+          },
         });
+
+        const foundUser = await prisma.user.findUniqueOrThrow({
+          where: {
+            id: invoice.updatedBy,
+          },
+        });
+
+        await auditInventory(
+          {
+            inventory: updatedInventory,
+            createdById: invoice.updatedBy,
+            createdByName: foundUser.name,
+          },
+          AUDIT_ACTION.UPDATE
+        );
       })
     );
 

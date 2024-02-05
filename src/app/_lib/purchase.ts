@@ -1,3 +1,5 @@
+import { AUDIT_ACTION } from "@prisma/client";
+import { auditInventory } from "./audit/inventory.audit";
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { PurchaseType } from "./types";
@@ -107,7 +109,7 @@ export async function createPurchaseInvoice(invoice: any) {
 
     await Promise.all(
       createdPurchaseInvoice.items.map(async (item) => {
-        await prisma.inventory.update({
+        const updatedInventory = await prisma.inventory.update({
           where: {
             id: item.inventoryId,
           },
@@ -119,7 +121,23 @@ export async function createPurchaseInvoice(invoice: any) {
               },
             },
           },
+          include: { product: true },
         });
+
+        const foundUser = await prisma.user.findUniqueOrThrow({
+          where: {
+            id: invoice.updatedBy,
+          },
+        });
+
+        await auditInventory(
+          {
+            inventory: updatedInventory,
+            createdById: invoice.updatedBy,
+            createdByName: foundUser.name,
+          },
+          AUDIT_ACTION.UPDATE
+        );
       })
     );
 
