@@ -3,9 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createCategory } from "./_lib/categories";
 import { createInventory, updateInventory } from "./_lib/inventory";
+import { createMobileInventory } from "./_lib/mobile-inventory";
 import { createProduct, updateProduct } from "./_lib/products";
 import { createPurchaseInvoice } from "./_lib/purchase";
 import { createReleaseInvoice } from "./_lib/release";
+import { createSalesrep } from "./_lib/salesrep";
 import { createUser } from "./_lib/users";
 
 export async function createUserAction(user: any) {
@@ -45,5 +47,15 @@ export async function createPurchaseInvoiceAction(invoice: any) {
 
 export async function createReleaseInvoiceAction(invoice: any) {
   await createReleaseInvoice(invoice);
+  revalidatePath("/");
+}
+
+export async function createSalesRepAction(salesRep: any) {
+  await createSalesrep(salesRep);
+  revalidatePath("/");
+}
+
+export async function createMobileInventoryAction(inventory: any) {
+  await createMobileInventory(inventory);
   revalidatePath("/");
 }

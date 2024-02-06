@@ -39,7 +39,11 @@ export async function getAllProducts(): Promise<{
   error?: unknown;
 }> {
   try {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
 
     const formatted = await Promise.all(
       products.map((product) => ({

@@ -1,6 +1,6 @@
 import { CreateUpdatePurchase } from "@/app/_features/purchases";
 import { getAllInventories } from "@/app/_lib/inventory";
-import { supabaseClientServer } from "@/app/_lib/supabase-server";
+import { createServerSupabaseClient } from "@/app/_lib/supabase-server";
 import { InventoryType } from "@/app/_lib/types";
 import { getUserByEmail } from "@/app/_lib/users";
 import { Spinner } from "@primer/react";
@@ -28,7 +28,7 @@ export default async function NewPurchase() {
 
   const {
     data: { session },
-  } = await supabaseClientServer.auth.getSession();
+  } = await createServerSupabaseClient().auth.getSession();
 
   if (inventory && session && session.user.email) {
     return (

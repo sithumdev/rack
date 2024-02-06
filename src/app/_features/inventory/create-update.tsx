@@ -135,7 +135,7 @@ export default function CreateUpdateInventory({
                   onSelect={(_, option) => {
                     setValue("productId", String(option.id));
                     setSelectedProduct(option);
-                    setValue("sellingPrice", String(option));
+                    setValue("sellingPrice", String(option.price));
                   }}
                 />
 

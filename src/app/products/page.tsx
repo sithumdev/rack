@@ -2,7 +2,7 @@ import { Spinner } from "@primer/react";
 import { Category } from "@prisma/client";
 import { ProductsTable } from "../_features/products";
 import { getCategories } from "../_lib/categories";
-import { supabaseClientServer } from "../_lib/supabase-server";
+import { createServerSupabaseClient } from "../_lib/supabase-server";
 import { getUserByEmail } from "../_lib/users";
 
 async function ProductsIntermediate({
@@ -24,7 +24,7 @@ export default async function Products() {
 
   const {
     data: { session },
-  } = await supabaseClientServer.auth.getSession();
+  } = await createServerSupabaseClient().auth.getSession();
 
   if (categories && session && session.user.email) {
     return (

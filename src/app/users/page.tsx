@@ -2,7 +2,7 @@ import { Spinner } from "@primer/react";
 import { UsersTable } from "../_features/users";
 import { getUserByEmail, getUsers } from "../_lib/users";
 import { User } from "@prisma/client";
-import { supabaseClientServer } from "../_lib/supabase-server";
+import { createServerSupabaseClient } from "../_lib/supabase-server";
 
 async function UsersIntermediate({
   email,
@@ -21,7 +21,7 @@ export default async function Users() {
 
   const {
     data: { session },
-  } = await supabaseClientServer.auth.getSession();
+  } = await createServerSupabaseClient().auth.getSession();
 
   if (users && session && session.user.email) {
     return <UsersIntermediate users={users} email={session.user.email} />;

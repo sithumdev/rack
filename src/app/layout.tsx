@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Wrapper } from "./_components";
 import { APP_NAME } from "./_lib/globals";
-import { supabaseClientServer } from "./_lib/supabase-server";
+import { createServerSupabaseClient } from "./_lib/supabase-server";
 import "./globals.css";
 import "@cloudscape-design/global-styles/index.css";
 
@@ -19,7 +19,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data } = await supabaseClientServer.auth.getUser();
+  const { data } = await createServerSupabaseClient().auth.getUser();
 
   return (
     <html lang="en">
