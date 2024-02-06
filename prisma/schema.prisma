@@ -201,27 +201,37 @@ model SalesRep {
   updatedAt DateTime @updatedAt
   issues    Issue[]  @relation("IssueToSalesrep")
 
-  inventoryId Int
-  inventory   MobileInventory @relation("SalesRepToInventory", fields: [inventoryId], references: [id])
+  inventories InventoriesOnSalesReps[]
 }
 
 model MobileInventory {
-  id           Int        @id @default(autoincrement())
+  id           Int                      @id @default(autoincrement())
   mrp          Int
   sellingPrice Int
   sku          String
   available    Int
   sold         Int
   defective    Int
-  createdAt    DateTime   @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime                 @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime                 @updatedAt
   createdById  Int
   updatedById  Int
   productId    Int
-  createdBy    User       @relation("MobileInventoriesCreatedBy", fields: [createdById], references: [id])
-  product      Product    @relation("ProductsToMobileInventory", fields: [productId], references: [id])
-  updatedBy    User       @relation("MobileInventoriesUpdatedBy", fields: [updatedById], references: [id])
-  salesReps    SalesRep[] @relation("SalesRepToInventory")
+  createdBy    User                     @relation("MobileInventoriesCreatedBy", fields: [createdById], references: [id])
+  product      Product                  @relation("ProductsToMobileInventory", fields: [productId], references: [id])
+  updatedBy    User                     @relation("MobileInventoriesUpdatedBy", fields: [updatedById], references: [id])
+  salesReps    InventoriesOnSalesReps[]
+}
+
+model InventoriesOnSalesReps {
+  inventoryId Int
+  inventory   MobileInventory @relation(fields: [inventoryId], references: [id])
+  salesRepId  Int
+  salesRep    SalesRep        @relation(fields: [salesRepId], references: [id])
+  createdAt   DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime        @updatedAt
+
+  @@id([salesRepId, inventoryId])
 }
 
 enum USER_TYPE {
