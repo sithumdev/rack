@@ -37,6 +37,11 @@ export default function CreateUpdateUser({ open, onClose }: ICreateUpdateUser) {
         email: email,
         password: password,
         phone: phone,
+        options: {
+          data: {
+            type,
+          },
+        },
       });
 
       if (createdUser.user) {
