@@ -1,97 +1,86 @@
-"use client";
-
-import { INVENTORY_LEVEL, TABLE_ROW_SIZE } from "@/app/_lib/globals";
+import { TABLE_ROW_SIZE } from "@/app/_lib/globals";
+import { SalesRepCustomers } from "@/app/_lib/salesrep-customer";
 import { RelativeTime } from "@primer/react";
-import {
-  MobileInventory,
-  Product,
-  SalesRep,
-  USER_TYPE,
-  User,
-} from "@prisma/client";
+import { SalesRep, User } from "@prisma/client";
 import { Button, Input, Table, TableProps, Tag } from "antd";
-import { useEffect, useState } from "react";
 import { SearchProps } from "antd/es/input";
-import CreateMobileInventory from "@/app/_features/salesrep/mobile-inventory/create-update";
+import Link from "next/link";
 import numeral from "numeral";
-const { Search } = Input;
+import { useEffect, useState } from "react";
+import CreateSalesRepCustomer from "./create-update";
 import { CloudDownloadOutlined } from "@ant-design/icons";
 
-function getColor(available: number): string {
-  if (available > INVENTORY_LEVEL.LOW) {
-    return "green";
-  } else if (available > INVENTORY_LEVEL.DANGER) {
-    return "gold";
-  }
-  return "error";
-}
+const { Search } = Input;
 
-type ISalesRepInventory = {
+type ISalesRepCustomers = {
   salesRep: SalesRep;
   currentUser: User;
-  products: Product[];
 };
 
 const COLUMNS: TableProps["columns"] = [
   {
     title: "Name",
-    dataIndex: "productId",
-    key: "productId",
-    render: (_productId, record) => <span>{record.product.name}</span>,
-  },
-  {
-    title: "Selling Price",
-    dataIndex: "sellingPrice",
-    key: "sellingPrice",
-    render: (sellingPrice) => (
-      <span>{numeral(sellingPrice).format("0,0")}</span>
+    dataIndex: "salesRepId",
+    key: "name",
+    render: (_name, record) => (
+      <Link href={`/customer/${record.customer.id}`} className="text-blue-600">
+        {record.customer.name}
+      </Link>
     ),
   },
   {
-    title: "Barcode",
-    dataIndex: "createdAt",
-    key: "barcode",
-    render: (_createdAt, record) => <Tag>{record.product.barcode}</Tag>,
+    title: "City",
+    dataIndex: "salesRepId",
+    key: "city",
+    render: (_customer, record) => <span>{record.customer.city}</span>,
   },
   {
-    title: "Max Retail Price",
-    dataIndex: "mrp",
-    key: "mrp",
-    render: (mrp) => <span>{numeral(mrp).format("0,0")}</span>,
+    title: "Phone",
+    dataIndex: "salesRepId",
+    key: "phone",
+    render: (_customer, record) => <span>{record.customer.phone}</span>,
   },
-
   {
-    title: "Available",
-    dataIndex: "available",
-    key: "available",
-    render: (available) => (
-      <Tag color={getColor(available)}>{numeral(available).format("0,0")}</Tag>
+    title: "Address",
+    dataIndex: "salesRepId",
+    key: "address",
+    render: (_customer, record) => <span>{record.customer.address}</span>,
+  },
+  {
+    title: "Total Credits",
+    dataIndex: "customer",
+    key: "totalCredit",
+    render: (_customer, record) => (
+      <Tag>{numeral(record.customer.totalCredit).format("0,0")}</Tag>
     ),
   },
   {
     title: "Last Updated By",
-    dataIndex: "available",
-    key: "lastUpdatedBy",
-    render: (available, record) => <span>{record.updatedBy.name}</span>,
+    dataIndex: "createdAt",
+    key: "createdAt",
+    render: (_createdAt, record) => (
+      <span>{record.customer.updatedBy.name}</span>
+    ),
   },
   {
     title: "Updated At",
     dataIndex: "updatedAt",
     key: "updatedAt",
-    render: (updatedAt) => <RelativeTime date={new Date(updatedAt)} />,
+    render: (_updatedAt, record) => (
+      <RelativeTime date={new Date(record.customer.updatedAt)} />
+    ),
   },
 ];
 
-export default function SalesRepInventory({
+export default function SalesRepCustomers({
   currentUser,
   salesRep,
-  products,
-}: ISalesRepInventory) {
+}: ISalesRepCustomers) {
   const [loading, setLoading] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
-  const [inventories, setInventories] = useState<MobileInventory[]>([]);
+  const [customers, setCustomers] = useState<SalesRepCustomers[]>([]);
 
   const [change, setChange] = useState<boolean>(false);
 
@@ -106,7 +95,7 @@ export default function SalesRepInventory({
       formData.append("take", TABLE_ROW_SIZE.toString());
       formData.append("skip", page.toString());
 
-      const response = await fetch(`/api/salesrep/${salesRep.id}/inventory`, {
+      const response = await fetch(`/api/salesrep/${salesRep.id}/customers`, {
         method: "POST",
         body: formData,
       });
@@ -114,8 +103,8 @@ export default function SalesRepInventory({
       if (response.status === 200) {
         const data = await response.json();
 
-        if (data && Object.hasOwn(data, "mobileInventories")) {
-          setInventories(data.mobileInventories);
+        if (data && Object.hasOwn(data, "customers")) {
+          setCustomers(data.customers);
           setTotal(data.total);
         }
       }
@@ -129,7 +118,7 @@ export default function SalesRepInventory({
     <>
       <div className="flex items-center justify-end mb-5 gap-3">
         <Search
-          placeholder="Search products..."
+          placeholder="input search text"
           onSearch={onSearch}
           enterButton
           classNames={{
@@ -141,19 +130,17 @@ export default function SalesRepInventory({
         <Button type="text" icon={<CloudDownloadOutlined />}>
           Download
         </Button>
-        {currentUser.type === USER_TYPE.OWNER && (
-          <Button
-            type="primary"
-            className="bg-blue-600"
-            onClick={() => setOpen(true)}
-          >
-            Create Inventory
-          </Button>
-        )}
+        <Button
+          type="primary"
+          className="bg-blue-600"
+          onClick={() => setOpen(true)}
+        >
+          Create Customer
+        </Button>
       </div>
       <Table
         loading={loading}
-        dataSource={inventories}
+        dataSource={customers}
         columns={COLUMNS}
         pagination={{
           total,
@@ -163,10 +150,9 @@ export default function SalesRepInventory({
           },
         }}
       />
-      <CreateMobileInventory
-        currentUser={currentUser}
+      <CreateSalesRepCustomer
         salesRep={salesRep}
-        products={products}
+        currentUser={currentUser}
         isOpen={open}
         createHandler={() => {
           setChange(!change);

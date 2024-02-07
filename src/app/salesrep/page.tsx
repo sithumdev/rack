@@ -1,6 +1,6 @@
 import { Breadcrumb, Empty } from "antd";
 import { getSalesRepresentatives } from "../_lib/salesrep";
-import SalesRepresentativeTable from "./table";
+import SalesRepresentativeTable from "../_features/salesrep/table";
 import { createServerSupabaseClient } from "../_lib/supabase-server";
 import { getUserByEmail } from "../_lib/users";
 import { User } from "@prisma/client";

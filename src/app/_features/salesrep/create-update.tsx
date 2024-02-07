@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Form, Input, Modal, message } from "antd";
 import { useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { createSalesRepAction } from "../actions";
+import { createSalesRepAction } from "../../actions";
 import CreateSalesRepSchema, {
   CreateSalesRepSchemaType,
 } from "./schema/create.schema";

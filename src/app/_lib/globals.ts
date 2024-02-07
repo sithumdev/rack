@@ -60,7 +60,12 @@ export const SIDE_NAVIGATION: ISideNavigation[] = [
     route: "Sales Representatives",
   },
   {
-    id: 8,
+    id: 9,
+    path: "customer",
+    route: "Customers",
+  },
+  {
+    id: 10,
     path: "downloads",
     route: "Downloads",
   },

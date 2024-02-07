@@ -5,6 +5,7 @@ import { Tabs } from "antd";
 import SalesRepPurchases from "@/app/_features/salesrep/purchase/table";
 import SalesRepInventory from "./inventory/table";
 import { useSearchParams, useRouter } from "next/navigation";
+import SalesRepCustomers from "./customers/table";
 
 type IDetails = {
   currentUser: User;
@@ -56,7 +57,12 @@ export default function Details({
           {
             key: "5",
             label: "Customers",
-            children: "Content of Tab Pane 3",
+            children: (
+              <SalesRepCustomers
+                salesRep={salesRepresentative}
+                currentUser={currentUser}
+              />
+            ),
           },
           {
             key: "6",
