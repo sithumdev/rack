@@ -205,6 +205,7 @@ model SalesRep {
   issues    Issue[]  @relation("IssueToSalesrep")
 
   inventories InventoriesOnSalesReps[]
+  purchases SalesRepPurchase[] @relation("PurchaseToSalesRep")
 }
 
 model MobileInventory {
@@ -249,6 +250,9 @@ model SalesRepPurchase {
   createdBy   User           @relation("SalesRepPurchaseCreatedBy", fields: [createdById], references: [id])
   updatedBy   User           @relation("SalesRepPurchaseUpdatedBy", fields: [updatedById], references: [id])
   items       SalesRepPurchaseItem[] @relation("SalesRepPurchaseToItem")
+
+  salesRepId  Int
+  salesRep SalesRep @relation("PurchaseToSalesRep", fields: [salesRepId], references: [id])
 }
 
 model SalesRepPurchaseItem {
