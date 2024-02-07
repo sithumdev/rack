@@ -9,6 +9,10 @@ import { createPurchaseInvoice } from "./_lib/purchase";
 import { createReleaseInvoice } from "./_lib/release";
 import { createSalesrep } from "./_lib/salesrep";
 import {
+  CreateSalesRepCustomer,
+  createSalesRepCustomer,
+} from "./_lib/salesrep-customer";
+import {
   CreateSalesRepPurchase,
   createSalesRepPurchaseInvoice,
 } from "./_lib/salesrep-purchase";
@@ -68,5 +72,12 @@ export async function createSalesRepPurchaseInvoiceAction(
   invoice: CreateSalesRepPurchase
 ) {
   await createSalesRepPurchaseInvoice(invoice);
+  revalidatePath("/");
+}
+
+export async function createSalesRepCustomerAction(
+  customer: CreateSalesRepCustomer
+) {
+  await createSalesRepCustomer(customer);
   revalidatePath("/");
 }
