@@ -43,8 +43,6 @@ export default function CreateMobileInventory({
     resolver: zodResolver(CreateMobileInventorySchema),
   });
 
-  console.log(errors);
-
   const onSubmit: SubmitHandler<CreateMobileInventorySchemaType> = async (
     data
   ) => {

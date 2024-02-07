@@ -23,9 +23,20 @@ export type SalesRepPurchasesWithCreatedByAndInventory =
   Prisma.SalesRepPurchaseGetPayload<{
     include: {
       createdBy: true;
+    };
+  }>;
+
+export type SalesRepPurchasesWithCreatedByAndInventoryIncluded =
+  Prisma.SalesRepPurchaseGetPayload<{
+    include: {
+      createdBy: true;
       items: {
         include: {
-          inventory: true;
+          inventory: {
+            include: {
+              product: true;
+            };
+          };
         };
       };
     };
@@ -116,11 +127,6 @@ export async function getPurchasesBySalesRep(
       },
       include: {
         createdBy: true,
-        items: {
-          include: {
-            inventory: true,
-          },
-        },
       },
     });
 
@@ -132,6 +138,40 @@ export async function getPurchasesBySalesRep(
 
     return { salesRepPurchases, total };
   } catch (error) {
+    return { error };
+  }
+}
+
+export async function getPurchasesInvoiceBySalesRep(
+  invoiceId: number,
+  salesRepId: number
+): Promise<{
+  salesRepPurchase?: SalesRepPurchasesWithCreatedByAndInventoryIncluded;
+  error?: unknown;
+}> {
+  try {
+    const salesRepPurchase = await prisma.salesRepPurchase.findUniqueOrThrow({
+      where: {
+        id: invoiceId,
+        salesRepId,
+      },
+      include: {
+        createdBy: true,
+        items: {
+          include: {
+            inventory: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { salesRepPurchase };
+  } catch (error) {
+    Sentry.captureException(error);
     return { error };
   }
 }

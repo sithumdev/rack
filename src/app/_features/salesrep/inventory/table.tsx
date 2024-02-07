@@ -2,7 +2,13 @@
 
 import { INVENTORY_LEVEL, TABLE_ROW_SIZE } from "@/app/_lib/globals";
 import { RelativeTime } from "@primer/react";
-import { MobileInventory, Product, SalesRep, User } from "@prisma/client";
+import {
+  MobileInventory,
+  Product,
+  SalesRep,
+  USER_TYPE,
+  User,
+} from "@prisma/client";
 import { Button, Input, Table, TableProps, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { SearchProps } from "antd/es/input";
@@ -132,15 +138,28 @@ export default function SalesRepInventory({
           loading={loading}
         />
         <Button type="text">Download</Button>
-        <Button
-          type="primary"
-          className="bg-blue-600"
-          onClick={() => setOpen(true)}
-        >
-          Create Inventory
-        </Button>
+        {currentUser.type === USER_TYPE.OWNER && (
+          <Button
+            type="primary"
+            className="bg-blue-600"
+            onClick={() => setOpen(true)}
+          >
+            Create Inventory
+          </Button>
+        )}
       </div>
-      <Table dataSource={inventories} columns={COLUMNS} />
+      <Table
+        loading={loading}
+        dataSource={inventories}
+        columns={COLUMNS}
+        pagination={{
+          total,
+          pageSize: TABLE_ROW_SIZE,
+          onChange: (page) => {
+            setPage((page - 1) * TABLE_ROW_SIZE);
+          },
+        }}
+      />
       <CreateMobileInventory
         currentUser={currentUser}
         salesRep={salesRep}

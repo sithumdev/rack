@@ -26,7 +26,7 @@ function Wrapper({
           },
           {
             title: (
-              <Link href={`/salesrep/${salesRepresentative?.id}`}>
+              <Link href={`/salesrep/${salesRepresentative?.id}?tab=2`}>
                 {salesRepresentative?.name}
               </Link>
             ),

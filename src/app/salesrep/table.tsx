@@ -1,7 +1,7 @@
 "use client";
 
 import { RelativeTime } from "@primer/react";
-import { SalesRep } from "@prisma/client";
+import { SalesRep, USER_TYPE, User } from "@prisma/client";
 import { Button, Table, TableProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ interface ISalesRep extends SalesRep {
 }
 
 type ISalesRepresentativeTable = {
+  currentUser: User;
   salesRepresentatives: ISalesRep[];
 };
 
@@ -27,6 +28,7 @@ const COLUMNS: TableProps["columns"] = [
 
 export default function SalesRepresentativeTable({
   salesRepresentatives,
+  currentUser,
 }: ISalesRepresentativeTable) {
   const pathName = usePathname();
 
@@ -34,16 +36,19 @@ export default function SalesRepresentativeTable({
 
   return (
     <div>
-      <div className="flex items-center justify-end mb-5">
-        <Button
-          type="primary"
-          className="bg-blue-600"
-          onClick={() => setOpen(true)}
-        >
-          Create SalesRep
-        </Button>
-      </div>
+      {currentUser.type === USER_TYPE.OWNER && (
+        <div className="flex items-center justify-end">
+          <Button
+            type="primary"
+            className="bg-blue-600"
+            onClick={() => setOpen(true)}
+          >
+            Create SalesRep
+          </Button>
+        </div>
+      )}
       <Table
+        className="mt-5"
         dataSource={salesRepresentatives}
         columns={[
           ...(COLUMNS || []),

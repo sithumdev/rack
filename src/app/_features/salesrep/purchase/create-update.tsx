@@ -13,6 +13,7 @@ import {
   Modal,
   Table,
   TableProps,
+  message,
 } from "antd";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -64,6 +65,8 @@ export default function CreateUpdateSalesRepPurchase({
 }: ICreateUpdateSalesRepPurchase) {
   const router = useRouter();
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const ref = useRef<HTMLFormElement>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -89,8 +92,6 @@ export default function CreateUpdateSalesRepPurchase({
     resolver: zodResolver(CreateSalesRepPurchaseSchema),
   });
 
-  console.log(errors);
-
   const values = watch("items");
 
   const { fields, append, remove } = useFieldArray({
@@ -107,6 +108,10 @@ export default function CreateUpdateSalesRepPurchase({
         inventoryId: Number(item.inventoryId),
         quantity: Number(item.quantity),
       })),
+    });
+    messageApi.open({
+      type: "success",
+      content: "Purchase invoice created successfully",
     });
     reset();
     setLoading(false);
@@ -145,6 +150,7 @@ export default function CreateUpdateSalesRepPurchase({
 
   return (
     <>
+      {contextHolder}
       <form ref={ref} onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 p-3">
           {fields.map((field, index) => (
