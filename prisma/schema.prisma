@@ -211,6 +211,7 @@ model SalesRep {
   purchases   SalesRepPurchase[]       @relation("PurchaseToSalesRep")
 
   customers CustomersOnSalesReps[]
+  routes    RoutesOnSalesReps[]
 }
 
 model MobileInventory {
@@ -297,6 +298,28 @@ model CustomersOnSalesReps {
   updatedAt  DateTime         @updatedAt
 
   @@id([customerId, salesRepId])
+}
+
+model SalesRepRoute {
+  id        Int      @id @default(autoincrement())
+  name      String
+  cities    String[]
+  notes     String?
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+
+  salesReps RoutesOnSalesReps[]
+}
+
+model RoutesOnSalesReps {
+  salesRepId Int
+  salesRep   SalesRep      @relation(fields: [salesRepId], references: [id])
+  routeId    Int
+  route      SalesRepRoute @relation(fields: [routeId], references: [id])
+  createdAt  DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime      @updatedAt
+
+  @@id([routeId, salesRepId])
 }
 
 enum USER_TYPE {
