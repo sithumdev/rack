@@ -37,6 +37,9 @@ model User {
 
   createdMobileInventories MobileInventory[] @relation("MobileInventoriesCreatedBy")
   updatedMobileInventories MobileInventory[] @relation("MobileInventoriesUpdatedBy")
+
+  createdSalesRepPurchases SalesRepPurchase[] @relation("SalesRepPurchaseCreatedBy")
+  updatedSalesRepPurchases SalesRepPurchase[] @relation("SalesRepPurchaseUpdatedBy")
 }
 
 model Category {
@@ -217,10 +220,13 @@ model MobileInventory {
   createdById  Int
   updatedById  Int
   productId    Int
+  depreciated  Boolean @default(false)
   createdBy    User                     @relation("MobileInventoriesCreatedBy", fields: [createdById], references: [id])
   product      Product                  @relation("ProductsToMobileInventory", fields: [productId], references: [id])
   updatedBy    User                     @relation("MobileInventoriesUpdatedBy", fields: [updatedById], references: [id])
   salesReps    InventoriesOnSalesReps[]
+
+  salesPurchaseItems SalesRepPurchaseItem[] @relation("MobileInventoryToPurchase")
 }
 
 model InventoriesOnSalesReps {
@@ -232,6 +238,28 @@ model InventoriesOnSalesReps {
   updatedAt   DateTime        @updatedAt
 
   @@id([salesRepId, inventoryId])
+}
+
+model SalesRepPurchase {
+  id          Int            @id @default(autoincrement())
+  createdAt   DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime       @updatedAt
+  createdById Int
+  updatedById Int
+  createdBy   User           @relation("SalesRepPurchaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User           @relation("SalesRepPurchaseUpdatedBy", fields: [updatedById], references: [id])
+  items       SalesRepPurchaseItem[] @relation("SalesRepPurchaseToItem")
+}
+
+model SalesRepPurchaseItem {
+  id          Int       @id @default(autoincrement())
+  quantity    Int
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt
+  purchaseId  Int
+  inventoryId Int
+  inventory   MobileInventory @relation("MobileInventoryToPurchase", fields: [inventoryId], references: [id])
+  purchase    SalesRepPurchase  @relation("SalesRepPurchaseToItem", fields: [purchaseId], references: [id])
 }
 
 enum USER_TYPE {
