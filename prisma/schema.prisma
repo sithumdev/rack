@@ -40,6 +40,9 @@ model User {
 
   createdSalesRepPurchases SalesRepPurchase[] @relation("SalesRepPurchaseCreatedBy")
   updatedSalesRepPurchases SalesRepPurchase[] @relation("SalesRepPurchaseUpdatedBy")
+
+  createdSalesRepCustomers SalesRepCustomer[] @relation("CreatedSalesRepCustomers")
+  updatedSalesRepCustomers SalesRepCustomer[] @relation("UpdatedSalesRepCustomers")
 }
 
 model Category {
@@ -278,6 +281,11 @@ model SalesRepCustomer {
   createdAt   DateTime               @default(now()) @db.Timestamp(6)
   updatedAt   DateTime               @updatedAt
   salesReps   CustomersOnSalesReps[]
+
+  createdById Int
+  updatedById Int
+  createdBy   User @relation("CreatedSalesRepCustomers", fields: [createdById], references: [id])
+  updatedBy   User @relation("UpdatedSalesRepCustomers", fields: [updatedById], references: [id])
 }
 
 model CustomersOnSalesReps {
