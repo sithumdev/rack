@@ -205,7 +205,9 @@ model SalesRep {
   issues    Issue[]  @relation("IssueToSalesrep")
 
   inventories InventoriesOnSalesReps[]
-  purchases SalesRepPurchase[] @relation("PurchaseToSalesRep")
+  purchases   SalesRepPurchase[]       @relation("PurchaseToSalesRep")
+
+  customers CustomersOnSalesReps[]
 }
 
 model MobileInventory {
@@ -221,7 +223,7 @@ model MobileInventory {
   createdById  Int
   updatedById  Int
   productId    Int
-  depreciated  Boolean @default(false)
+  depreciated  Boolean                  @default(false)
   createdBy    User                     @relation("MobileInventoriesCreatedBy", fields: [createdById], references: [id])
   product      Product                  @relation("ProductsToMobileInventory", fields: [productId], references: [id])
   updatedBy    User                     @relation("MobileInventoriesUpdatedBy", fields: [updatedById], references: [id])
@@ -242,28 +244,51 @@ model InventoriesOnSalesReps {
 }
 
 model SalesRepPurchase {
-  id          Int            @id @default(autoincrement())
-  createdAt   DateTime       @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime       @updatedAt
+  id          Int                    @id @default(autoincrement())
+  createdAt   DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime               @updatedAt
   createdById Int
   updatedById Int
-  createdBy   User           @relation("SalesRepPurchaseCreatedBy", fields: [createdById], references: [id])
-  updatedBy   User           @relation("SalesRepPurchaseUpdatedBy", fields: [updatedById], references: [id])
+  createdBy   User                   @relation("SalesRepPurchaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User                   @relation("SalesRepPurchaseUpdatedBy", fields: [updatedById], references: [id])
   items       SalesRepPurchaseItem[] @relation("SalesRepPurchaseToItem")
 
-  salesRepId  Int
-  salesRep SalesRep @relation("PurchaseToSalesRep", fields: [salesRepId], references: [id])
+  salesRepId Int
+  salesRep   SalesRep @relation("PurchaseToSalesRep", fields: [salesRepId], references: [id])
 }
 
 model SalesRepPurchaseItem {
-  id          Int       @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   quantity    Int
-  createdAt   DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime         @updatedAt
   purchaseId  Int
   inventoryId Int
-  inventory   MobileInventory @relation("MobileInventoryToPurchase", fields: [inventoryId], references: [id])
-  purchase    SalesRepPurchase  @relation("SalesRepPurchaseToItem", fields: [purchaseId], references: [id])
+  inventory   MobileInventory  @relation("MobileInventoryToPurchase", fields: [inventoryId], references: [id])
+  purchase    SalesRepPurchase @relation("SalesRepPurchaseToItem", fields: [purchaseId], references: [id])
+}
+
+model SalesRepCustomer {
+  id          Int                    @id @default(autoincrement())
+  name        String
+  city        String
+  address     String
+  phone       String
+  totalCredit Int                    @default(0)
+  createdAt   DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime               @updatedAt
+  salesReps   CustomersOnSalesReps[]
+}
+
+model CustomersOnSalesReps {
+  salesRepId Int
+  salesRep   SalesRep         @relation(fields: [salesRepId], references: [id])
+  customerId Int
+  customer   SalesRepCustomer @relation(fields: [customerId], references: [id])
+  createdAt  DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime         @updatedAt
+
+  @@id([customerId, salesRepId])
 }
 
 enum USER_TYPE {
