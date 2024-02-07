@@ -17,6 +17,10 @@ import {
   createSalesRepPurchaseInvoice,
 } from "./_lib/salesrep-purchase";
 import { createUser } from "./_lib/users";
+import {
+  CreateSalesRepRoute,
+  createSalesRepRoute,
+} from "./_lib/salesrep-routes";
 
 export async function createUserAction(user: any) {
   await createUser(user);
@@ -79,5 +83,10 @@ export async function createSalesRepCustomerAction(
   customer: CreateSalesRepCustomer
 ) {
   await createSalesRepCustomer(customer);
+  revalidatePath("/");
+}
+
+export async function createSalesRepRouteAction(route: CreateSalesRepRoute) {
+  await createSalesRepRoute(route);
   revalidatePath("/");
 }

@@ -6,6 +6,7 @@ import SalesRepPurchases from "@/app/_features/salesrep/purchase/table";
 import SalesRepInventory from "./inventory/table";
 import { useSearchParams, useRouter } from "next/navigation";
 import SalesRepCustomers from "./customers/table";
+import SalesRepRoutes from "./routes/table";
 
 type IDetails = {
   currentUser: User;
@@ -67,7 +68,12 @@ export default function Details({
           {
             key: "6",
             label: "Routes",
-            children: "Content of Tab Pane 3",
+            children: (
+              <SalesRepRoutes
+                currentUser={currentUser}
+                salesRep={salesRepresentative}
+              />
+            ),
           },
         ]}
         onChange={(item) => {

@@ -66,6 +66,11 @@ export const SIDE_NAVIGATION: ISideNavigation[] = [
   },
   {
     id: 10,
+    path: "route",
+    route: "Routes",
+  },
+  {
+    id: 11,
     path: "downloads",
     route: "Downloads",
   },

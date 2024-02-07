@@ -3,15 +3,15 @@ import prisma from "./prisma";
 import * as Sentry from "@sentry/nextjs";
 import { TABLE_ROW_SIZE } from "./globals";
 
-export interface CreateSalesRepCustomer
-  extends Omit<Prisma.SalesRepCustomerCreateInput, "createdBy" | "updatedBy"> {
+export interface CreateSalesRepRoute
+  extends Omit<Prisma.SalesRepRouteCreateInput, "createdBy" | "updatedBy"> {
   createdBy: number;
   salesRepId: number;
 }
 
-export type SalesRepCustomers = Prisma.CustomersOnSalesRepsGetPayload<{
+export type SalesRepRoutes = Prisma.RoutesOnSalesRepsGetPayload<{
   include: {
-    customer: {
+    route: {
       include: {
         updatedBy: true;
       };
@@ -19,14 +19,7 @@ export type SalesRepCustomers = Prisma.CustomersOnSalesRepsGetPayload<{
   };
 }>;
 
-export type SalesRepCustomer = Prisma.SalesRepCustomerGetPayload<{
-  include: {
-    updatedBy: true;
-    createdBy: true;
-  };
-}>;
-
-export type SalesRepCustomersWithSalesReps = Prisma.SalesRepCustomerGetPayload<{
+export type SalesRepRoutesWithSalesReps = Prisma.SalesRepRouteGetPayload<{
   include: {
     updatedBy: true;
     salesReps: {
@@ -37,29 +30,28 @@ export type SalesRepCustomersWithSalesReps = Prisma.SalesRepCustomerGetPayload<{
   };
 }>;
 
-export async function createSalesRepCustomer(customer: CreateSalesRepCustomer) {
+export async function createSalesRepRoute(route: CreateSalesRepRoute) {
   try {
-    const createdSalesRepCustomer = await prisma.customersOnSalesReps.create({
+    const createdSalesRepRoute = await prisma.routesOnSalesReps.create({
       data: {
         salesRep: {
           connect: {
-            id: customer.salesRepId,
+            id: route.salesRepId,
           },
         },
-        customer: {
+        route: {
           create: {
-            name: customer.name,
-            address: customer.address,
-            city: customer.city,
-            phone: customer.phone,
+            name: route.name,
+            cities: route.cities,
+            notes: route.notes,
             createdBy: {
               connect: {
-                id: customer.createdBy,
+                id: route.createdBy,
               },
             },
             updatedBy: {
               connect: {
-                id: customer.createdBy,
+                id: route.createdBy,
               },
             },
           },
@@ -67,30 +59,30 @@ export async function createSalesRepCustomer(customer: CreateSalesRepCustomer) {
       },
     });
 
-    return { customer: createdSalesRepCustomer };
+    return { route: createdSalesRepRoute };
   } catch (error) {
     Sentry.captureException(error);
     return { error };
   }
 }
 
-export async function getCustomersBySalesRep(
+export async function getRoutesBySalesRep(
   query: string = "",
   take = TABLE_ROW_SIZE,
   skip = 0,
   salesRepId: number
 ): Promise<{
-  customers?: SalesRepCustomers[];
+  routes?: SalesRepRoutes[];
   total?: number;
   error?: unknown;
 }> {
   try {
-    const customers = await prisma.customersOnSalesReps.findMany({
+    const routes = await prisma.routesOnSalesReps.findMany({
       skip,
       take,
       where: {
         salesRepId,
-        customer: {
+        route: {
           name: {
             contains: query,
             mode: "insensitive",
@@ -101,7 +93,7 @@ export async function getCustomersBySalesRep(
         updatedAt: "desc",
       },
       include: {
-        customer: {
+        route: {
           include: {
             updatedBy: true,
           },
@@ -115,45 +107,24 @@ export async function getCustomersBySalesRep(
       },
     });
 
-    return { customers, total };
+    return { routes, total };
   } catch (error) {
     Sentry.captureException(error);
     return { error };
   }
 }
 
-export async function getCustomerById(id: number): Promise<{
-  customer?: SalesRepCustomer;
-  error?: unknown;
-}> {
-  try {
-    const customer = await prisma.salesRepCustomer.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include: {
-        createdBy: true,
-        updatedBy: true,
-      },
-    });
-    return { customer };
-  } catch (error) {
-    Sentry.captureException(error);
-    return { error };
-  }
-}
-
-export async function getCustomers(
+export async function getRoutes(
   query: string = "",
   take = TABLE_ROW_SIZE,
   skip = 0
 ): Promise<{
-  customers?: SalesRepCustomersWithSalesReps[];
+  routes?: SalesRepRoutesWithSalesReps[];
   total?: number;
   error?: unknown;
 }> {
   try {
-    const customers = await prisma.salesRepCustomer.findMany({
+    const routes = await prisma.salesRepRoute.findMany({
       skip,
       take,
       where: {
@@ -175,9 +146,9 @@ export async function getCustomers(
       },
     });
 
-    const total = await prisma.salesRepCustomer.count();
+    const total = await prisma.salesRepRoute.count();
 
-    return { customers, total };
+    return { routes, total };
   } catch (error) {
     Sentry.captureException(error);
     return { error };
