@@ -43,6 +43,9 @@ model User {
 
   createdSalesRepCustomers SalesRepCustomer[] @relation("CreatedSalesRepCustomers")
   updatedSalesRepCustomers SalesRepCustomer[] @relation("UpdatedSalesRepCustomers")
+
+  createdSalesRepRoutes SalesRepRoute[] @relation("CreatedSalesRepRoutes")
+  updatedSalesRepRoutes SalesRepRoute[] @relation("UpdatedSalesRepRoutes")
 }
 
 model Category {
@@ -307,6 +310,11 @@ model SalesRepRoute {
   notes     String?
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt
+
+  createdById Int
+  updatedById Int
+  createdBy   User @relation("CreatedSalesRepRoutes", fields: [createdById], references: [id])
+  updatedBy   User @relation("UpdatedSalesRepRoutes", fields: [updatedById], references: [id])
 
   salesReps RoutesOnSalesReps[]
 }
