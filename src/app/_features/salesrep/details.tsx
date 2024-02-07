@@ -2,8 +2,9 @@
 
 import { Product, SalesRep, User } from "@prisma/client";
 import { Tabs } from "antd";
-import SalesRepInventory from "./sales-rep-inventory";
-import SalesRepPurchases from "./purchase/table";
+import SalesRepPurchases from "@/app/_features/salesrep/purchase/table";
+import SalesRepInventory from "./inventory/table";
+import { useSearchParams, useRouter } from "next/navigation";
 
 type IDetails = {
   currentUser: User;
@@ -16,11 +17,15 @@ export default function Details({
   products,
   currentUser,
 }: IDetails) {
+  const router = useRouter();
+
+  const params = useSearchParams();
+
   return (
     <>
       <h4 className="text-3xl mb-5">{salesRepresentative.name}</h4>
       <Tabs
-        defaultActiveKey="1"
+        defaultActiveKey={params.get("tab") || "1"}
         items={[
           {
             key: "1",
@@ -59,7 +64,9 @@ export default function Details({
             children: "Content of Tab Pane 3",
           },
         ]}
-        onChange={() => {}}
+        onChange={(item) => {
+          router.push(`?tab=${item}`);
+        }}
       />
     </>
   );

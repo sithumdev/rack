@@ -1,6 +1,14 @@
+import * as Sentry from "@sentry/nextjs";
+import { Prisma } from "@prisma/client";
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
-import * as Sentry from "@sentry/nextjs";
+
+export type MobileInventoriesWithProducts = Prisma.MobileInventoryGetPayload<{
+  include: {
+    product: true;
+    updatedBy: true;
+  };
+}>;
 
 export async function getMobileInventoriesBySalesRep(
   query: string = "",
@@ -8,7 +16,7 @@ export async function getMobileInventoriesBySalesRep(
   skip = 0,
   salesRepId: number
 ): Promise<{
-  mobileInventories?: any[];
+  mobileInventories?: MobileInventoriesWithProducts[];
   total?: number;
   error?: unknown;
 }> {
@@ -28,6 +36,7 @@ export async function getMobileInventoriesBySalesRep(
             mode: "insensitive",
           },
         },
+        depreciated: false,
       },
       orderBy: {
         updatedAt: "desc",
@@ -54,6 +63,71 @@ export async function getMobileInventoriesBySalesRep(
   }
 }
 
+export async function getAllMobileInventoriesBySalesRep(
+  salesRepId: number
+): Promise<{
+  mobileInventories?: MobileInventoriesWithProducts[];
+  error?: unknown;
+}> {
+  try {
+    const mobileInventories = await prisma.mobileInventory.findMany({
+      where: {
+        salesReps: {
+          every: {
+            salesRepId,
+          },
+        },
+        depreciated: false,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      include: {
+        product: true,
+        updatedBy: true,
+      },
+    });
+
+    return { mobileInventories };
+  } catch (error) {
+    return { error };
+  }
+}
+
+export async function getAllAvailbaleMobileInventoriesBySalesRep(
+  salesRepId: number
+): Promise<{
+  mobileInventories?: MobileInventoriesWithProducts[];
+  error?: unknown;
+}> {
+  try {
+    const mobileInventories = await prisma.mobileInventory.findMany({
+      where: {
+        salesReps: {
+          every: {
+            salesRepId,
+          },
+        },
+        available: {
+          gt: 0,
+        },
+        depreciated: false,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      include: {
+        product: true,
+        updatedBy: true,
+      },
+    });
+
+    return { mobileInventories };
+  } catch (error) {
+    return { error };
+  }
+}
+
 export async function createMobileInventory(inventory: any) {
   try {
     const foundProduct = await prisma.product.findUniqueOrThrow({
@@ -70,6 +144,7 @@ export async function createMobileInventory(inventory: any) {
         sellingPrice: inventory.sellingPrice,
         sku: inventory.sku,
         sold: inventory.sold,
+        depreciated: false,
         product: {
           connect: {
             id: foundProduct.id,

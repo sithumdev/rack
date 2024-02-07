@@ -5,8 +5,9 @@ import { RelativeTime } from "@primer/react";
 import { MobileInventory, Product, SalesRep, User } from "@prisma/client";
 import { Button, Input, Table, TableProps, Tag } from "antd";
 import { useEffect, useState } from "react";
-import CreateMobileInventory from "./mobile-inventory/create-update";
 import { SearchProps } from "antd/es/input";
+import CreateMobileInventory from "@/app/salesrep/[id]/mobile-inventory/create-update";
+import numeral from "numeral";
 const { Search } = Input;
 
 function getColor(available: number): string {
@@ -29,37 +30,42 @@ const COLUMNS: TableProps["columns"] = [
     title: "Name",
     dataIndex: "productId",
     key: "productId",
-    render: (updatedAt, record) => <span>{record.product.name}</span>,
+    render: (_productId, record) => <span>{record.product.name}</span>,
+  },
+  {
+    title: "Selling Price",
+    dataIndex: "sellingPrice",
+    key: "sellingPrice",
+    render: (sellingPrice) => (
+      <span>{numeral(sellingPrice).format("0,0")}</span>
+    ),
   },
   {
     title: "Barcode",
-    dataIndex: "sellingPrice",
-    key: "sellingPrice",
-    render: (updatedAt, record) => <span>{record.product.barcode}</span>,
+    dataIndex: "createdAt",
+    key: "barcode",
+    render: (_createdAt, record) => <Tag>{record.product.barcode}</Tag>,
   },
   {
     title: "Max Retail Price",
     dataIndex: "mrp",
     key: "mrp",
-    render: (mrp) => <span>{mrp}</span>,
+    render: (mrp) => <span>{numeral(mrp).format("0,0")}</span>,
   },
+
   {
     title: "Available",
     dataIndex: "available",
     key: "available",
-    render: (available) => <Tag color={getColor(available)}>{available}</Tag>,
+    render: (available) => (
+      <Tag color={getColor(available)}>{numeral(available).format("0,0")}</Tag>
+    ),
   },
   {
     title: "Last Updated By",
     dataIndex: "available",
     key: "lastUpdatedBy",
     render: (available, record) => <span>{record.updatedBy.name}</span>,
-  },
-  {
-    title: "Created At",
-    dataIndex: "createdAt",
-    key: "createdAt",
-    render: (createdAt) => <RelativeTime date={new Date(createdAt)} />,
   },
   {
     title: "Updated At",
@@ -113,7 +119,7 @@ export default function SalesRepInventory({
   const onSearch: SearchProps["onSearch"] = (value) => setQuery(value);
 
   return (
-    <div>
+    <>
       <div className="flex items-center justify-end mb-5 gap-3">
         <Search
           placeholder="input search text"
@@ -146,6 +152,6 @@ export default function SalesRepInventory({
         }}
         closeHandler={() => setOpen(false)}
       />
-    </div>
+    </>
   );
 }

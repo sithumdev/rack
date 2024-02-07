@@ -8,6 +8,10 @@ import { createProduct, updateProduct } from "./_lib/products";
 import { createPurchaseInvoice } from "./_lib/purchase";
 import { createReleaseInvoice } from "./_lib/release";
 import { createSalesrep } from "./_lib/salesrep";
+import {
+  CreateSalesRepPurchase,
+  createSalesRepPurchaseInvoice,
+} from "./_lib/salesrep-purchase";
 import { createUser } from "./_lib/users";
 
 export async function createUserAction(user: any) {
@@ -57,5 +61,12 @@ export async function createSalesRepAction(salesRep: any) {
 
 export async function createMobileInventoryAction(inventory: any) {
   await createMobileInventory(inventory);
+  revalidatePath("/");
+}
+
+export async function createSalesRepPurchaseInvoiceAction(
+  invoice: CreateSalesRepPurchase
+) {
+  await createSalesRepPurchaseInvoice(invoice);
   revalidatePath("/");
 }

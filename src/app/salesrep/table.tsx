@@ -52,7 +52,10 @@ export default function SalesRepresentativeTable({
             dataIndex: "name",
             key: "name",
             render: (name: string, record: ISalesRep) => (
-              <Link className="text-blue-600" href={`${pathName}/${record.id}`}>
+              <Link
+                className="text-blue-600"
+                href={`${pathName}/${record.id}?tab=1`}
+              >
                 {name}
               </Link>
             ),

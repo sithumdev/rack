@@ -1,10 +1,35 @@
+import Details from "@/app/_features/salesrep/details";
 import { getAllProducts } from "@/app/_lib/products";
 import { getSalesRepresentativeById } from "@/app/_lib/salesrep";
 import { createServerSupabaseClient } from "@/app/_lib/supabase-server";
 import { getUserByEmail } from "@/app/_lib/users";
 import { Product, SalesRep } from "@prisma/client";
-import { Empty } from "antd";
-import Details from "./details";
+import { Breadcrumb, Empty } from "antd";
+import Link from "next/link";
+
+function Wrapper({
+  children,
+  salesRepresentative,
+}: {
+  children: React.ReactNode;
+  salesRepresentative?: SalesRep;
+}) {
+  return (
+    <>
+      <Breadcrumb
+        items={[
+          {
+            title: <Link href="/salesrep">Sales Representatives</Link>,
+          },
+          {
+            title: `${salesRepresentative?.name}`,
+          },
+        ]}
+      />
+      {children}
+    </>
+  );
+}
 
 async function SalesRepresentativeDetailsIntermediate({
   email,
@@ -19,15 +44,21 @@ async function SalesRepresentativeDetailsIntermediate({
 
   if (user) {
     return (
-      <Details
-        currentUser={user}
-        salesRepresentative={salesRepresentative}
-        products={products}
-      />
+      <Wrapper salesRepresentative={salesRepresentative}>
+        <Details
+          currentUser={user}
+          salesRepresentative={salesRepresentative}
+          products={products}
+        />
+      </Wrapper>
     );
   }
 
-  return <Empty />;
+  return (
+    <Wrapper>
+      <Empty />
+    </Wrapper>
+  );
 }
 
 export default async function SalesRep({ params }: { params: { id: string } }) {
