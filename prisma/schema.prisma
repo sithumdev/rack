@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -9,31 +9,39 @@ datasource db {
 }
 
 model User {
-  id                   Int            @id @default(autoincrement())
-  name                 String         @db.VarChar(255)
-  email                String         @unique @db.VarChar(255)
-  avatar               String?        @db.VarChar(255)
-  isActive             Boolean        @default(true)
-  emailVerified        Boolean        @default(false)
-  createdAt            DateTime       @default(now()) @db.Timestamp(6)
-  updatedAt            DateTime       @updatedAt
-  notificationEnabled  Boolean        @default(false)
-  notificationToken    String?
-  type                 USER_TYPE
-  createdCategories    Category[]     @relation("CategoriesCreatedBy")
-  updatedCategories    Category[]     @relation("CategoriesUpdatedBy")
-  createdInventories   Inventory[]    @relation("InventoriesCreatedBy")
-  updatedInventories   Inventory[]    @relation("InventoriesUpdatedBy")
-  createdProducts      Product[]      @relation("ProductsCreatedBy")
-  updatedProducts      Product[]      @relation("ProductsUpdatedBy")
-  createdPurchases     Purchase[]     @relation("PurchaseCreatedBy")
-  updatedPurchases     Purchase[]     @relation("PurchaseUpdatedBy")
-  createdPurchaseItems PurchaseItem[] @relation("CreatedPurchaseItems")
-  updatedPurchaseItems PurchaseItem[] @relation("UpdatedPurchaseItems")
-  createdReleases      Release[]      @relation("ReleaseCreatedBy")
-  updatedReleases      Release[]      @relation("ReleaseUpdatedBy")
-  createdReleaseItems  ReleaseItem[]  @relation("CreatedReleaseItems")
-  updatedReleaseItems  ReleaseItem[]  @relation("UpdatedReleaseItems")
+  id                                                  Int                @id @default(autoincrement())
+  name                                                String             @db.VarChar(255)
+  email                                               String             @unique @db.VarChar(255)
+  avatar                                              String?            @db.VarChar(255)
+  isActive                                            Boolean            @default(true)
+  emailVerified                                       Boolean            @default(false)
+  createdAt                                           DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt                                           DateTime           @updatedAt
+  notificationEnabled                                 Boolean            @default(false)
+  notificationToken                                   String?
+  type                                                USER_TYPE
+  createdCategories                                   Category[]         @relation("CategoriesCreatedBy")
+  updatedCategories                                   Category[]         @relation("CategoriesUpdatedBy")
+  createdInventories                                  Inventory[]        @relation("InventoriesCreatedBy")
+  updatedInventories                                  Inventory[]        @relation("InventoriesUpdatedBy")
+  MobileInventory_MobileInventory_createdByIdToUser   MobileInventory[]  @relation("MobileInventory_createdByIdToUser")
+  MobileInventory_MobileInventory_updatedByIdToUser   MobileInventory[]  @relation("MobileInventory_updatedByIdToUser")
+  createdProducts                                     Product[]          @relation("ProductsCreatedBy")
+  updatedProducts                                     Product[]          @relation("ProductsUpdatedBy")
+  createdPurchases                                    Purchase[]         @relation("PurchaseCreatedBy")
+  updatedPurchases                                    Purchase[]         @relation("PurchaseUpdatedBy")
+  createdPurchaseItems                                PurchaseItem[]     @relation("CreatedPurchaseItems")
+  updatedPurchaseItems                                PurchaseItem[]     @relation("UpdatedPurchaseItems")
+  createdReleases                                     Release[]          @relation("ReleaseCreatedBy")
+  updatedReleases                                     Release[]          @relation("ReleaseUpdatedBy")
+  createdReleaseItems                                 ReleaseItem[]      @relation("CreatedReleaseItems")
+  updatedReleaseItems                                 ReleaseItem[]      @relation("UpdatedReleaseItems")
+  SalesRepCustomer_SalesRepCustomer_createdByIdToUser SalesRepCustomer[] @relation("SalesRepCustomer_createdByIdToUser")
+  SalesRepCustomer_SalesRepCustomer_updatedByIdToUser SalesRepCustomer[] @relation("SalesRepCustomer_updatedByIdToUser")
+  SalesRepPurchase_SalesRepPurchase_createdByIdToUser SalesRepPurchase[] @relation("SalesRepPurchase_createdByIdToUser")
+  SalesRepPurchase_SalesRepPurchase_updatedByIdToUser SalesRepPurchase[] @relation("SalesRepPurchase_updatedByIdToUser")
+  SalesRepRoute_SalesRepRoute_createdByIdToUser       SalesRepRoute[]    @relation("SalesRepRoute_createdByIdToUser")
+  SalesRepRoute_SalesRepRoute_updatedByIdToUser       SalesRepRoute[]    @relation("SalesRepRoute_updatedByIdToUser")
 }
 
 model Category {
@@ -50,42 +58,42 @@ model Category {
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(255)
-  description String?
-  createdAt   DateTime    @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime    @updatedAt
-  createdById Int
-  updatedById Int
-  barcode     String      @unique
-  price       Int
-  weight      Int
-  categoryId  Int
-  category    Category    @relation(fields: [categoryId], references: [id])
-  createdBy   User        @relation("ProductsCreatedBy", fields: [createdById], references: [id])
-  updatedBy   User        @relation("ProductsUpdatedBy", fields: [updatedById], references: [id])
-  inventories Inventory[] @relation("ProductsToInventory")
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(255)
+  description     String?
+  createdAt       DateTime          @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime          @updatedAt
+  createdById     Int
+  updatedById     Int
+  barcode         String            @unique
+  price           Int
+  weight          Int
+  categoryId      Int
+  inventories     Inventory[]       @relation("ProductsToInventory")
+  MobileInventory MobileInventory[]
+  category        Category          @relation(fields: [categoryId], references: [id])
+  createdBy       User              @relation("ProductsCreatedBy", fields: [createdById], references: [id])
+  updatedBy       User              @relation("ProductsUpdatedBy", fields: [updatedById], references: [id])
 }
 
 model Inventory {
-  id           Int      @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   mrp          Int
   sellingPrice Int
   sku          String
   available    Int
   sold         Int
   defective    Int
-  createdAt    DateTime @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime       @updatedAt
   createdById  Int
   updatedById  Int
-  createdBy    User     @relation("InventoriesCreatedBy", fields: [createdById], references: [id])
-  updatedBy    User     @relation("InventoriesUpdatedBy", fields: [updatedById], references: [id])
   productId    Int
-  product      Product  @relation("ProductsToInventory", fields: [productId], references: [id])
-
-  purchases PurchaseItem[] @relation("InventoryToPurchase")
-  releases  ReleaseItem[]  @relation("InventoryToRelease")
+  createdBy    User           @relation("InventoriesCreatedBy", fields: [createdById], references: [id])
+  product      Product        @relation("ProductsToInventory", fields: [productId], references: [id])
+  updatedBy    User           @relation("InventoriesUpdatedBy", fields: [updatedById], references: [id])
+  purchases    PurchaseItem[] @relation("InventoryToPurchase")
+  releases     ReleaseItem[]  @relation("InventoryToRelease")
 }
 
 model Purchase {
@@ -100,56 +108,214 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   quantity    Int
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt
   createdById Int
   updatedById Int
-  createdBy   User     @relation("CreatedPurchaseItems", fields: [createdById], references: [id])
-  updatedBy   User     @relation("UpdatedPurchaseItems", fields: [updatedById], references: [id])
   purchaseId  Int
-  purchase    Purchase @relation("PurchaseToItem", fields: [purchaseId], references: [id])
-
   inventoryId Int
+  createdBy   User      @relation("CreatedPurchaseItems", fields: [createdById], references: [id])
   inventory   Inventory @relation("InventoryToPurchase", fields: [inventoryId], references: [id])
+  purchase    Purchase  @relation("PurchaseToItem", fields: [purchaseId], references: [id])
+  updatedBy   User      @relation("UpdatedPurchaseItems", fields: [updatedById], references: [id])
 }
 
 model Release {
-  id                      Int           @id @default(autoincrement())
-  whom                    String
-  createdAt               DateTime      @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime      @updatedAt
-  createdById             Int
-  updatedById             Int
-  createdBy               User          @relation("ReleaseCreatedBy", fields: [createdById], references: [id])
-  updatedBy               User          @relation("ReleaseUpdatedBy", fields: [updatedById], references: [id])
-  releases                ReleaseItem[] @relation("ReleaseToItem")
+  id          Int           @id @default(autoincrement())
+  whom        String
+  createdAt   DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime      @updatedAt
+  createdById Int
+  updatedById Int
+  createdBy   User          @relation("ReleaseCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User          @relation("ReleaseUpdatedBy", fields: [updatedById], references: [id])
+  releases    ReleaseItem[] @relation("ReleaseToItem")
 }
 
 model ReleaseItem {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   quantity    Int
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt
   createdById Int
   updatedById Int
-  createdBy   User     @relation("CreatedReleaseItems", fields: [createdById], references: [id])
-  updatedBy   User     @relation("UpdatedReleaseItems", fields: [updatedById], references: [id])
   releaseId   Int
-  release     Release  @relation("ReleaseToItem", fields: [releaseId], references: [id])
-
   inventoryId Int
+  createdBy   User      @relation("CreatedReleaseItems", fields: [createdById], references: [id])
   inventory   Inventory @relation("InventoryToRelease", fields: [inventoryId], references: [id])
+  release     Release   @relation("ReleaseToItem", fields: [releaseId], references: [id])
+  updatedBy   User      @relation("UpdatedReleaseItems", fields: [updatedById], references: [id])
 }
 
 model ProductReporting {
-  id          Int      @id @default(autoincrement())
-  productId     Int
-  count       Int
-  whom String
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  productId Int
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+  count     Int
+  whom      String
+}
+
+model AuditDifference {
+  id             Int            @id @default(autoincrement())
+  lhs            String
+  rhs            String
+  path           String
+  auditId        Int
+  InventoryAudit InventoryAudit @relation(fields: [auditId], references: [id])
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime
+  Issue     Issue[]
+}
+
+model CustomersOnSalesReps {
+  salesRepId       Int
+  customerId       Int
+  createdAt        DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime
+  SalesRepCustomer SalesRepCustomer @relation(fields: [customerId], references: [id])
+  SalesRep         SalesRep         @relation(fields: [salesRepId], references: [id])
+
+  @@id([customerId, salesRepId])
+}
+
+model InventoriesOnSalesReps {
+  inventoryId     Int
+  salesRepId      Int
+  createdAt       DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime
+  MobileInventory MobileInventory @relation(fields: [inventoryId], references: [id])
+  SalesRep        SalesRep        @relation(fields: [salesRepId], references: [id])
+
+  @@id([salesRepId, inventoryId])
+}
+
+model InventoryAudit {
+  id              Int               @id @default(autoincrement())
+  action          AUDIT_ACTION
+  performedById   Int
+  performedBy     String
+  performedAt     DateTime          @default(now()) @db.Timestamp(6)
+  inventoryId     Int
+  mrp             Int
+  productName     String
+  AuditDifference AuditDifference[]
+}
+
+model Issue {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime
+  issuer     Issuer
+  customerId Int
+  salesRepId Int
+  Customer   Customer @relation(fields: [customerId], references: [id])
+  SalesRep   SalesRep @relation(fields: [salesRepId], references: [id])
+}
+
+model MobileInventory {
+  id                                     Int                      @id @default(autoincrement())
+  mrp                                    Int
+  sellingPrice                           Int
+  sku                                    String
+  available                              Int
+  sold                                   Int
+  defective                              Int
+  createdAt                              DateTime                 @default(now()) @db.Timestamp(6)
+  updatedAt                              DateTime
+  createdById                            Int
+  updatedById                            Int
+  productId                              Int
+  depreciated                            Boolean                  @default(false)
+  InventoriesOnSalesReps                 InventoriesOnSalesReps[]
+  User_MobileInventory_createdByIdToUser User                     @relation("MobileInventory_createdByIdToUser", fields: [createdById], references: [id])
+  Product                                Product                  @relation(fields: [productId], references: [id])
+  User_MobileInventory_updatedByIdToUser User                     @relation("MobileInventory_updatedByIdToUser", fields: [updatedById], references: [id])
+  SalesRepPurchaseItem                   SalesRepPurchaseItem[]
+}
+
+model RoutesOnSalesReps {
+  salesRepId    Int
+  routeId       Int
+  createdAt     DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime
+  SalesRepRoute SalesRepRoute @relation(fields: [routeId], references: [id])
+  SalesRep      SalesRep      @relation(fields: [salesRepId], references: [id])
+
+  @@id([routeId, salesRepId])
+}
+
+model SalesRep {
+  id                     Int                      @id @default(autoincrement())
+  name                   String
+  createdAt              DateTime                 @default(now()) @db.Timestamp(6)
+  updatedAt              DateTime
+  CustomersOnSalesReps   CustomersOnSalesReps[]
+  InventoriesOnSalesReps InventoriesOnSalesReps[]
+  Issue                  Issue[]
+  RoutesOnSalesReps      RoutesOnSalesReps[]
+  SalesRepPurchase       SalesRepPurchase[]
+}
+
+model SalesRepCustomer {
+  id                                      Int                    @id @default(autoincrement())
+  name                                    String
+  city                                    String
+  address                                 String
+  phone                                   String
+  totalCredit                             Int                    @default(0)
+  createdAt                               DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt                               DateTime
+  createdById                             Int
+  updatedById                             Int
+  CustomersOnSalesReps                    CustomersOnSalesReps[]
+  User_SalesRepCustomer_createdByIdToUser User                   @relation("SalesRepCustomer_createdByIdToUser", fields: [createdById], references: [id])
+  User_SalesRepCustomer_updatedByIdToUser User                   @relation("SalesRepCustomer_updatedByIdToUser", fields: [updatedById], references: [id])
+}
+
+model SalesRepPurchase {
+  id                                      Int                    @id @default(autoincrement())
+  createdAt                               DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt                               DateTime
+  createdById                             Int
+  updatedById                             Int
+  salesRepId                              Int
+  User_SalesRepPurchase_createdByIdToUser User                   @relation("SalesRepPurchase_createdByIdToUser", fields: [createdById], references: [id])
+  SalesRep                                SalesRep               @relation(fields: [salesRepId], references: [id])
+  User_SalesRepPurchase_updatedByIdToUser User                   @relation("SalesRepPurchase_updatedByIdToUser", fields: [updatedById], references: [id])
+  SalesRepPurchaseItem                    SalesRepPurchaseItem[]
+}
+
+model SalesRepPurchaseItem {
+  id               Int              @id @default(autoincrement())
+  quantity         Int
+  createdAt        DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime
+  purchaseId       Int
+  inventoryId      Int
+  MobileInventory  MobileInventory  @relation(fields: [inventoryId], references: [id])
+  SalesRepPurchase SalesRepPurchase @relation(fields: [purchaseId], references: [id])
+}
+
+model SalesRepRoute {
+  id                                   Int                 @id @default(autoincrement())
+  name                                 String
+  cities                               String[]
+  notes                                String?
+  createdAt                            DateTime            @default(now()) @db.Timestamp(6)
+  updatedAt                            DateTime
+  createdById                          Int
+  updatedById                          Int
+  RoutesOnSalesReps                    RoutesOnSalesReps[]
+  User_SalesRepRoute_createdByIdToUser User                @relation("SalesRepRoute_createdByIdToUser", fields: [createdById], references: [id])
+  User_SalesRepRoute_updatedByIdToUser User                @relation("SalesRepRoute_updatedByIdToUser", fields: [updatedById], references: [id])
 }
 
 enum USER_TYPE {
@@ -157,4 +323,16 @@ enum USER_TYPE {
   MANAGER
   EMPLOYEE
   SUPPLIER
+}
+
+enum AUDIT_ACTION {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum Issuer {
+  SALES_REP
+  CUSTOMER
+  REPACK
 }

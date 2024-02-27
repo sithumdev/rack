@@ -52,3 +52,20 @@ export type ReleaseItemType = {
   updatedBy: string;
   updatedAt: Date;
 };
+
+export type InventoryExportType = {
+  id: number;
+  productId: number;
+  name: string;
+  barcode: string;
+  mrp: number;
+  sellingPrice: number;
+  value: number;
+  available: number;
+  defective: number;
+  sku: string;
+  weight: number;
+  sold: number;
+  updatedAt: Date;
+  updatedBy: string;
+};
