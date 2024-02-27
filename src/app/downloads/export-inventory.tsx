@@ -1,12 +1,12 @@
 "use client";
 
 import { CSVLink } from "react-csv";
-import { InventoryType } from "../_lib/types";
+import { InventoryExportType, InventoryType } from "../_lib/types";
 import { Button } from "@primer/react";
 import { Product } from "@prisma/client";
 
 type IExportInventory = {
-  inventories: InventoryType[];
+  inventories: InventoryExportType[];
   products: Product[];
 };
 
@@ -25,7 +25,7 @@ export default function ExportInventory({
           <CSVLink
             data={[
               Object.keys(inventories[0]),
-              ...inventories.map((inventory: InventoryType) => {
+              ...inventories.map((inventory: InventoryExportType) => {
                 return Object.values(inventory);
               }),
             ]}

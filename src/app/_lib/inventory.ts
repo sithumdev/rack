@@ -1,6 +1,6 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
-import { InventoryType } from "./types";
+import { InventoryExportType, InventoryType } from "./types";
 import * as Sentry from "@sentry/nextjs";
 
 export async function getInventory(
@@ -253,6 +253,46 @@ export async function updateInventory(inventory: any) {
     console.log(error);
 
     Sentry.captureException(error);
+    return { error };
+  }
+}
+
+export async function getInventoryReport(): Promise<{
+  inventory?: InventoryExportType[];
+  error?: unknown;
+}> {
+  try {
+    const inventory = await prisma.inventory.findMany({
+      include: {
+        product: true,
+        updatedBy: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formatted: InventoryExportType[] = inventory.map((inventory) => ({
+      id: inventory.id,
+      productId: inventory.productId,
+      name: inventory.product.name,
+      available: inventory.available,
+      defective: inventory.defective,
+      sku: inventory.sku,
+      weight: inventory.product.weight,
+      sellingPrice: inventory.sellingPrice,
+      value: Number(inventory.sellingPrice * inventory.available),
+      mrp: inventory.mrp,
+      sold: inventory.sold,
+      updatedAt: inventory.updatedAt,
+      barcode: inventory.product.barcode,
+      updatedBy: inventory.updatedBy.name,
+    }));
+
+    return { inventory: formatted };
+  } catch (error) {
+    console.log(error);
+
     return { error };
   }
 }
