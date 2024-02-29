@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 const CreateReleaseSchema = z.object({
-  whom: z.string().min(1),
+  whom: z.string(),
+  whomId: z.number().optional(),
   items: z.array(
     z.object({
       name: z.string(),

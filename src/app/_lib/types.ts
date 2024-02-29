@@ -52,3 +52,10 @@ export type ReleaseItemType = {
   updatedBy: string;
   updatedAt: Date;
 };
+
+export type SalesRepType = {
+  id: number;
+  name: string;
+  value: string; // used to antd autocomplete requires a value field
+  label: string; // used to antd autocomplete requires a label field
+};

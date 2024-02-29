@@ -14,8 +14,8 @@ import {
   TextInput,
 } from "@primer/react";
 import { DataTable, Table } from "@primer/react/drafts";
-import { User } from "@prisma/client";
-import { Modal } from "antd";
+import { SalesRep, User } from "@prisma/client";
+import { AutoComplete, Modal, Segmented } from "antd";
 import { useRouter } from "next/navigation";
 import numeral from "numeral";
 import { useRef, useState } from "react";
@@ -64,16 +64,19 @@ function getDuplicateEntries(values: CreateReleaseSchemaType) {
 type ICreatePurchase = {
   currentUser: User;
   inventories: InventoryType[];
+  salesReps: SalesRep[];
 };
 
 export default function CreateUpdateRelease({
   currentUser,
   inventories,
+  salesReps,
 }: ICreatePurchase) {
   const router = useRouter();
   const returnFocusRef = useRef(null);
 
   const [open, setOpen] = useState<boolean>(false);
+  const [view, setView] = useState("Sales Rep");
   const [openReview, setOpenReview] = useState<boolean>(false);
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
@@ -101,6 +104,7 @@ export default function CreateUpdateRelease({
     reset,
     control,
     watch,
+    setValue,
   } = methods;
 
   const values = watch();
@@ -118,6 +122,7 @@ export default function CreateUpdateRelease({
     setLoading(true);
     await createReleaseInvoiceAction({
       whom: values.whom,
+      whomId: values.whomId,
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
       items: values.items.map((item) => ({
@@ -135,22 +140,69 @@ export default function CreateUpdateRelease({
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3 p-3">
-            <FormControl id={"whom"}>
-              <FormControl.Label>Sales Rep</FormControl.Label>
-              <TextInput
-                type="text"
-                className="w-full"
-                placeholder="Sales Rep"
-                {...register(`whom`)}
-                validationStatus={errors.whom && "error"}
-              />
-              {errors.whom && (
-                <FormControl.Validation variant="error">
-                  Sales Rep name is required
-                </FormControl.Validation>
-              )}
-            </FormControl>
-            {fields.map((field, index) => (
+            <Segmented<string>
+              options={["Sales Rep", "Customer", "Re-Pack"]}
+              onChange={(value) => {
+                setView(value);
+
+                if (value === "Re-Pack") {
+                  setValue("whom", "Re-Pack");
+                }
+
+                if (value !== "Sales Rep") {
+                  setValue("whomId", undefined);
+                }
+              }}
+              defaultValue={view}
+            />
+
+            {view === "Sales Rep" && (
+              <FormControl id={"whom"}>
+                <FormControl.Label>Sales Rep</FormControl.Label>
+                <AutoComplete
+                  style={{ width: 450 }}
+                  options={salesReps.map((salesRep) => ({
+                    ...salesRep,
+                    label: salesRep.name,
+                    value: salesRep.name,
+                  }))}
+                  placeholder="Search salesrep"
+                  filterOption={(inputValue, option) =>
+                    option!.name
+                      .toUpperCase()
+                      .indexOf(inputValue.toUpperCase()) !== -1
+                  }
+                  onSelect={(_, option) => {
+                    setValue("whom", option.name);
+                    setValue("whomId", option.id);
+                  }}
+                />
+                {errors.whom && (
+                  <FormControl.Validation variant="error">
+                    Sales Rep name is required
+                  </FormControl.Validation>
+                )}
+              </FormControl>
+            )}
+
+            {view === "Customer" && (
+              <FormControl id="whom">
+                <FormControl.Label>Customer</FormControl.Label>
+                <TextInput
+                  type="text"
+                  className="w-full"
+                  placeholder="Customer"
+                  {...register("whom")}
+                />
+                {errors.whom && (
+                  <FormControl.Validation variant="error">
+                    Customer name is required
+                  </FormControl.Validation>
+                )}
+              </FormControl>
+            )}
+
+            {fields.map((_, index) => (
               <>
                 <ReleaseItem
                   index={index}

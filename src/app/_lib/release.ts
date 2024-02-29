@@ -1,6 +1,7 @@
 import { TABLE_ROW_SIZE } from "./globals";
 import prisma from "./prisma";
 import { createProductReporting } from "./product-reporting";
+import { createSalesRepPurchaseInvoice } from "./salesrep-purchase";
 import { ReleaseType } from "./types";
 import * as Sentry from "@sentry/nextjs";
 
@@ -125,6 +126,17 @@ export async function createReleaseInvoice(invoice: any) {
         });
       })
     );
+
+    // Todo: Update sales rep's inventory
+    // await createSalesRepPurchaseInvoice({
+    //   salesRep: invoice.whomId,
+    //   createdBy: invoice.updatedBy,
+    //   items: [
+    //     {
+
+    //     }
+    //   ]
+    // });
 
     await Promise.all(
       createdPurchaseInvoice.releases.map(async (item) => {
